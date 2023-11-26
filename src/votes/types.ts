@@ -15,10 +15,13 @@ export const GetVote = {
         type: 'string',
       },
       isAnonymous: {
-        type: 'string',
+        type: 'boolean',
       },
       isActive: {
-        type: 'string',
+        type: 'boolean',
+      },
+      isHidenCounter: {
+        type: 'boolean',
       },
       privateUsers: {
         type: 'array',
@@ -60,8 +63,17 @@ export const GetVote = {
                   text: {
                     type: 'string',
                   },
+                  count: {
+                    type: 'number',
+                  },
                 },
               },
+            },
+            isAnonimic: {
+              type: 'boolean',
+            },
+            isHidenCounter: {
+              type: 'boolean',
             },
             files: {
               type: 'array',
@@ -137,10 +149,13 @@ export const PostVote = {
         type: 'string',
       },
       isAnonymous: {
-        type: 'string',
+        type: 'boolean',
       },
       isActive: {
-        type: 'string',
+        type: 'boolean',
+      },
+      isHidenCounter: {
+        type: 'boolean',
       },
       privateUsers: {
         type: 'array',
@@ -189,9 +204,26 @@ export const PostVote = {
             isMultiply: {
               type: 'boolean',
             },
+            isAnonimic: {
+              type: 'boolean',
+            },
+            isHidenCounter: {
+              type: 'boolean',
+            },
           },
         },
       },
+    },
+  },
+};
+
+export const PatchVote = {
+  schema: {
+    type: 'object',
+    default: {
+      457: 4146,
+      458: 4189,
+      459: 1441,
     },
   },
 };

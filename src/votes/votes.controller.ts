@@ -7,13 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { VotesService } from './votes.service';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { PostVote, GetVotes, GetVote } from './types';
+import { PostVote, GetVotes, GetVote, PatchVote } from './types';
 
 @Controller('votes')
 @ApiTags('votes')
@@ -44,6 +45,13 @@ export class VotesController {
   @UseGuards(JwtAuthGuard)
   @ApiBody(PostVote)
   update(@Param('id') id: string, @Body() updateVoteDto: UpdateVoteDto) {
+    return this.votesService.update(+id, updateVoteDto);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBody(PatchVote)
+  vote(@Param('id') id: string, @Body() updateVoteDto: UpdateVoteDto) {
     return this.votesService.update(+id, updateVoteDto);
   }
 
