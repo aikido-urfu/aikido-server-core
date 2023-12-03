@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { CreateUserDto, LoginUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 
@@ -50,7 +50,13 @@ export class AuthService {
     }
   }
 
-  async validateUserByLogin(email: string, password: string): Promise<any> {
+  async validateUserByLogin({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
     if (user && user.password === password) {
@@ -61,9 +67,14 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
+  async login(dto: LoginUserDto) {
+    if (!(await this.validateUserByLogin(dto))) {
+      throw new BadRequestException('Не правильные логин или пароль');
+    }
+    const { id } = await this.usersService.findByEmail(dto.email);
+
     return {
-      token: this.jwtService.sign({ id: user.id }),
+      token: this.jwtService.sign({ id }),
     };
   }
 }
