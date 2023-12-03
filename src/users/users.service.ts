@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getManager } from 'typeorm';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -12,8 +12,22 @@ export class UsersService {
     private repository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return { id: 1 };
+  async create(createUserDto: CreateUserDto) {
+    const maxId = await this.repository
+      .createQueryBuilder('users')
+      .select('MAX(users.id)', 'maxId')
+      .getRawOne();
+
+    const newId = maxId.maxId + 1;
+
+    const newUser = {
+      id: newId,
+      ...createUserDto,
+    };
+
+    await this.repository.save(newUser);
+
+    return { id: newId };
   }
 
   async findByEmail(email: string) {

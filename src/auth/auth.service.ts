@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
@@ -11,19 +15,29 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUserByRegister({
+    email,
+    password,
+    fullName,
+  }: {
+    email: string;
+    password: string;
+    fullName: string;
+  }): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
-    if (user && user.password === password) {
-      const { password, ...result } = user;
-      return result;
+    if (!email || !password || !fullName || user) {
+      return false;
     }
 
-    return null;
+    return true;
   }
 
   async register(dto: CreateUserDto) {
     try {
+      if (!(await this.validateUserByRegister(dto))) {
+        throw new BadRequestException('Отсуствуют необходимые поля');
+      }
       const userData = await this.usersService.create(dto);
 
       return {
@@ -32,8 +46,19 @@ export class AuthService {
     } catch (error) {
       console.log(error);
 
-      throw new ForbiddenException('Ошибка при регистрации');
+      throw new ForbiddenException(error || 'Ошибка при регистрации');
     }
+  }
+
+  async validateUserByLogin(email: string, password: string): Promise<any> {
+    const user = await this.usersService.findByEmail(email);
+
+    if (user && user.password === password) {
+      const { password, ...result } = user;
+      return result;
+    }
+
+    return null;
   }
 
   async login(user: User) {

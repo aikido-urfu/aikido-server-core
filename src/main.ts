@@ -11,14 +11,12 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  if (process.env.NODE_ENV === 'development') {
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document, {
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
-    });
-  }
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
   await app.listen(3000);
 }

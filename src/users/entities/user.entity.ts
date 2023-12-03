@@ -17,4 +17,16 @@ export class User {
 
   @OneToMany(() => Vote, (vote) => vote.user)
   votes: Vote[];
+
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ nullable: true })
+  photo: string;
+
+  @Column({ nullable: true })
+  telegram: string;
+
+  @Column({ nullable: true })
+  telegramUserID: string;
 }
