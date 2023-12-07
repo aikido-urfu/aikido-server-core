@@ -4,6 +4,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getManager } from 'typeorm';
 import { User } from './entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
@@ -42,12 +44,16 @@ export class UsersService {
     });
   }
 
+  async findByJWT(id) {
+    return this.repository.getId;
+  }
+
   findAll() {
     return `This action returns all users`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    return { id };
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

@@ -77,4 +77,15 @@ export class AuthService {
       token: this.jwtService.sign({ id }),
     };
   }
+
+  async findByJWT(token: string) {
+    try {
+      const decodedToken = this.jwtService.verify(token);
+      const userId = decodedToken.id;
+      return userId;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
 }
