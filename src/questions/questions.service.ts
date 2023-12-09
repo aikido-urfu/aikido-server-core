@@ -26,8 +26,6 @@ export class QuestionsService {
       const newQuestion = this.repository.create(question);
       await this.repository.save(newQuestion);
 
-      console.log(newQuestion.id);
-
       this.answersService.save(el.answers, newQuestion.id);
     });
   }
