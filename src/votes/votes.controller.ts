@@ -15,6 +15,7 @@ import { UpdateVoteDto } from './dto/update-vote.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { PostVote, GetVotes, GetVote, PatchVote } from './types';
+import { UserId } from 'src/decorators/user-id.decorator';
 
 @Controller('votes')
 @ApiTags('votes')
@@ -25,8 +26,8 @@ export class VotesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBody(PostVote)
-  create(@Body() createVoteDto: CreateVoteDto) {
-    return this.votesService.create(createVoteDto);
+  create(@Body() createVoteDto: CreateVoteDto, @UserId() userId) {
+    return this.votesService.create(createVoteDto, userId);
   }
 
   @Get()
@@ -38,7 +39,7 @@ export class VotesController {
   @Get(':id')
   @ApiResponse(GetVote)
   findOne(@Param('id') id: string) {
-    return this.votesService.findOne(+id);
+    // return this.votesService.findOne(+id);
   }
 
   @Put(':id')

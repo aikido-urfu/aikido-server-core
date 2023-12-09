@@ -77,3 +77,14 @@ export const GetMe = {
     },
   },
 };
+
+export const GetKey = {
+  schema: {
+    type: 'object',
+    properties: {
+      key: {
+        type: 'string',
+      },
+    },
+  },
+};

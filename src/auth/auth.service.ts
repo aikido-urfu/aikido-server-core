@@ -4,16 +4,21 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { RsaService } from 'src/tools/RSA';
 import { CreateUserDto, LoginUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
+  private rsaService: RsaService;
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) {}
+  ) {
+    this.rsaService = new RsaService();
+  }
 
   async validateUserByRegister({
     email,
@@ -59,7 +64,11 @@ export class AuthService {
   }): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
-    if (user && user.password === password) {
+    if (
+      user &&
+      this.rsaService.encrypt(user.password) ===
+        this.rsaService.encrypt(password)
+    ) {
       const { password, ...result } = user;
       return result;
     }

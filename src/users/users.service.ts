@@ -15,21 +15,24 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const maxId = await this.repository
-      .createQueryBuilder('users')
-      .select('MAX(users.id)', 'maxId')
-      .getRawOne();
+    // const maxId = await this.repository
+    //   .createQueryBuilder('users')
+    //   .select('MAX(users.id)', 'maxId')
+    //   .getRawOne();
 
-    const newId = maxId.maxId + 1;
+    // const newId = maxId.maxId + 1;
 
     const newUser = {
-      id: newId,
       ...createUserDto,
     };
 
     await this.repository.save(newUser);
 
-    return { id: newId };
+    const id = await this.repository.findOneBy({
+      email: createUserDto.email,
+    });
+
+    return { id };
   }
 
   async findByEmail(email: string) {

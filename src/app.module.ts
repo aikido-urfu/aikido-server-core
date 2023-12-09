@@ -8,6 +8,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { User } from './users/entities/user.entity';
 import { Vote } from './votes/entities/vote.entity';
+import { Questions } from './questions/entities/questions.entity';
+import { Answers } from './answers/entities/answers.entity';
 
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import { Vote } from './votes/entities/vote.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Vote],
+      entities: [User, Vote, Questions],
       synchronize: true,
     }),
   ],

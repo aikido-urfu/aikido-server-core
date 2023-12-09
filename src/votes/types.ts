@@ -8,7 +8,7 @@ export const GetVote = {
       title: {
         type: 'string',
       },
-      desciption: {
+      description: {
         type: 'string',
       },
       date: {
@@ -107,7 +107,7 @@ export const GetVotes = {
       title: {
         type: 'string',
       },
-      desciption: {
+      description: {
         type: 'string',
       },
       date: {
@@ -142,10 +142,13 @@ export const PostVote = {
       title: {
         type: 'string',
       },
-      desciption: {
+      description: {
         type: 'string',
       },
-      date: {
+      dateOfStart: {
+        type: 'string',
+      },
+      dateOfEnd: {
         type: 'string',
       },
       isAnonymous: {
@@ -181,6 +184,9 @@ export const PostVote = {
           type: 'object',
           properties: {
             title: {
+              type: 'string',
+            },
+            description: {
               type: 'string',
             },
             answers: {
