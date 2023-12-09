@@ -20,7 +20,7 @@ export class AnswersService {
       const answer = {
         id: maxId + 1,
         question: questionId,
-        text: answers.text,
+        text: el.text,
         count: 0,
       };
 
