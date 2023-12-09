@@ -20,11 +20,8 @@ export class AnswersService {
       const answer = {
         id: maxId + 1,
         question: questionId,
-        title: el.title,
-        description: el.description,
-        files: el.files,
-        photos: el.files,
-        isMultiply: el.isMultiply,
+        text: answers.text,
+        count: 0,
       };
 
       this.repository.save(answer);
