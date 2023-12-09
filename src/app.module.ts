@@ -10,6 +10,7 @@ import { User } from './users/entities/user.entity';
 import { Vote } from './votes/entities/vote.entity';
 import { Questions } from './questions/entities/questions.entity';
 import { Answers } from './answers/entities/answers.entity';
+import { TelegramModule } from './telegram/telegram.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Answers } from './answers/entities/answers.entity';
       entities: [User, Vote, Questions, Answers],
       synchronize: true,
     }),
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],

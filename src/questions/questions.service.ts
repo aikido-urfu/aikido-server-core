@@ -29,4 +29,15 @@ export class QuestionsService {
       this.answersService.save(el.answers, newQuestion.id);
     });
   }
+
+  async delete(vote) {
+    const questions = await this.repository.findBy({ vote: { id: vote } });
+
+    await questions.forEach(async (el) => {
+      await this.answersService.delete(el.id);
+      this.repository.delete(el.id);
+    });
+
+    return;
+  }
 }

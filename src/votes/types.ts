@@ -5,13 +5,22 @@ export const GetVote = {
       id: {
         type: 'number',
       },
+      userId: {
+        type: 'number',
+      },
       title: {
         type: 'string',
       },
       description: {
         type: 'string',
       },
-      date: {
+      dateOfStart: {
+        type: 'string',
+      },
+      dateOfEnd: {
+        type: 'string',
+      },
+      creationDate: {
         type: 'string',
       },
       isAnonymous: {
@@ -101,34 +110,45 @@ export const GetVotes = {
   schema: {
     type: 'object',
     properties: {
-      id: {
-        type: 'number',
-      },
-      title: {
-        type: 'string',
-      },
-      description: {
-        type: 'string',
-      },
-      date: {
-        type: 'string',
-      },
-      isAnonymous: {
-        type: 'string',
-      },
-      isActive: {
-        type: 'string',
-      },
-      privateUsers: {
+      votes: {
         type: 'array',
         items: {
-          type: 'number',
-        },
-      },
-      photos: {
-        type: 'array',
-        items: {
-          type: 'string',
+          type: 'object',
+          properties: {
+            id: {
+              type: 'number',
+            },
+            userId: {
+              type: 'number',
+            },
+            title: {
+              type: 'string',
+            },
+            description: {
+              type: 'string',
+            },
+            date: {
+              type: 'string',
+            },
+            isAnonymous: {
+              type: 'string',
+            },
+            isActive: {
+              type: 'string',
+            },
+            privateUsers: {
+              type: 'array',
+              items: {
+                type: 'number',
+              },
+            },
+            photos: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+          },
         },
       },
     },

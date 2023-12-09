@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, Repository } from 'typeorm';
+import { DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { Vote } from './entities/vote.entity';
 import { QuestionsService } from 'src/questions/questions.service';
 import { User } from 'src/users/entities/user.entity';
@@ -71,7 +71,21 @@ export class VotesService {
     return `This action updates a #${id} vote`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} vote`;
+  async remove(id: number, userId: number) {
+    try {
+      const vote = await this.repository.findOne({
+        where: { id },
+        relations: ['user'],
+      });
+
+      if (Number(vote.user.id) !== userId) {
+        throw new ForbiddenException('Недостаточно прав');
+      }
+
+      await this.questionsService.delete(id);
+      this.repository.delete(id);
+    } catch (error) {
+      throw new ForbiddenException('Такого id не существует');
+    }
   }
 }

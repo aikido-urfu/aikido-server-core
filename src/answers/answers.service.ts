@@ -21,4 +21,16 @@ export class AnswersService {
       this.repository.save(answer);
     });
   }
+
+  async delete(question) {
+    const answers = await this.repository.findBy({
+      questions: { id: question },
+    });
+
+    await answers.forEach(async (el) => {
+      this.repository.delete(el.id);
+    });
+
+    return;
+  }
 }

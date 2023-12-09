@@ -42,14 +42,14 @@ export class VotesController {
     // return this.votesService.findOne(+id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBody(PostVote)
   update(@Param('id') id: string, @Body() updateVoteDto: UpdateVoteDto) {
     return this.votesService.update(+id, updateVoteDto);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBody(PatchVote)
   vote(@Param('id') id: string, @Body() updateVoteDto: UpdateVoteDto) {
@@ -58,7 +58,7 @@ export class VotesController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
-    return this.votesService.remove(+id);
+  remove(@Param('id') id: string, @UserId() userId: number) {
+    return this.votesService.remove(+id, userId);
   }
 }
