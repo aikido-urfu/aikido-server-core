@@ -22,17 +22,11 @@ export class UsersService {
 
     // const newId = maxId.maxId + 1;
 
-    const newUser = {
-      ...createUserDto,
-    };
+    const newUser = await this.repository.create(createUserDto);
 
     await this.repository.save(newUser);
 
-    const id = await this.repository.findOneBy({
-      email: createUserDto.email,
-    });
-
-    return { id };
+    return { id: newUser.id };
   }
 
   async findByEmail(email: string) {

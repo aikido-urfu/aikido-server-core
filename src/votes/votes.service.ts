@@ -35,13 +35,7 @@ export class VotesService {
       throw new ForbiddenException('Отсутсвуют необходимые поля');
     }
 
-    const maxId = await this.repository
-      .createQueryBuilder('votes')
-      .select('MAX(votes.id)', 'maxId')
-      .getRawOne();
-
     const voteData = {
-      id: maxId + 1,
       user: userId as DeepPartial<User>,
       title,
       description,
@@ -57,9 +51,10 @@ export class VotesService {
       photos,
     };
 
-    this.questionsService.save(questions, maxId + 1);
+    const newVote = this.repository.create(voteData);
+    await this.repository.save(newVote);
 
-    this.repository.save(voteData);
+    this.questionsService.save(questions, newVote.id);
   }
 
   findAll() {

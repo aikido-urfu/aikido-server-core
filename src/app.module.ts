@@ -24,7 +24,7 @@ import { Answers } from './answers/entities/answers.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Vote, Questions],
+      entities: [User, Vote, Questions, Answers],
       synchronize: true,
     }),
   ],

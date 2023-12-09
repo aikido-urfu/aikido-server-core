@@ -13,14 +13,8 @@ export class QuestionsService {
   ) {}
 
   async save(questions, voteId) {
-    questions.forEach(async (el) => {
-      const maxId = await this.repository
-        .createQueryBuilder('questions')
-        .select('MAX(questions.id)', 'maxId')
-        .getRawOne();
-
+    questions.forEach(async (el: Questions) => {
       const question = {
-        id: maxId + 1,
         vote: voteId,
         title: el.title,
         description: el.description,
@@ -29,9 +23,12 @@ export class QuestionsService {
         isMultiply: el.isMultiply,
       };
 
-      this.answersService.save(questions.answers, maxId + 1);
+      const newQuestion = this.repository.create(question);
+      await this.repository.save(newQuestion);
 
-      this.repository.save(question);
+      console.log(newQuestion.id);
+
+      this.answersService.save(el.answers, newQuestion.id);
     });
   }
 }
