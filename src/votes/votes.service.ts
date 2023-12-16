@@ -149,7 +149,7 @@ export class VotesService {
       }
 
       await this.questionsService.delete(id);
-      this.repository.delete(id);
+      await this.repository.delete(id);
     } catch (error) {
       throw new ForbiddenException('Такого id не существует');
     }

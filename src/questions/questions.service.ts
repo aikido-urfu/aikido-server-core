@@ -35,7 +35,7 @@ export class QuestionsService {
 
     await questions.forEach(async (el) => {
       await this.answersService.delete(el.id);
-      this.repository.delete(el.id);
+      await this.repository.delete(el.id);
     });
 
     return;
