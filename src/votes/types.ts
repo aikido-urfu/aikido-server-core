@@ -8,6 +8,29 @@ export const GetVote = {
       userId: {
         type: 'number',
       },
+      isAdmin: {
+        type: 'string',
+      },
+      isVoted: {
+        type: 'boolean',
+      },
+      votedUsers: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'number',
+            },
+            fullName: {
+              type: 'string',
+            },
+            photo: {
+              type: 'string',
+            },
+          },
+        },
+      },
       title: {
         type: 'string',
       },
@@ -74,6 +97,23 @@ export const GetVote = {
                   },
                   count: {
                     type: 'number',
+                  },
+                  votedUsers: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: {
+                          type: 'number',
+                        },
+                        fullName: {
+                          type: 'string',
+                        },
+                        photo: {
+                          type: 'string',
+                        },
+                      },
+                    },
                   },
                 },
               },

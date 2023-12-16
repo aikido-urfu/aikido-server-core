@@ -38,8 +38,8 @@ export class VotesController {
 
   @Get(':id')
   @ApiResponse(GetVote)
-  findOne(@Param('id') id: string) {
-    return this.votesService.findOne(+id);
+  findOne(@Param('id') id: string, @UserId() userId) {
+    return this.votesService.findOne(+id, userId);
   }
 
   @Patch(':id')
@@ -52,8 +52,8 @@ export class VotesController {
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBody(PatchVote)
-  vote(@Param('id') id: string) {
-    return this.votesService.voting(+id);
+  vote(@Param('id') id: string, @UserId() userId, @Body() userAnswers: {}) {
+    return this.votesService.voting(+id, userId, userAnswers);
   }
 
   @Delete(':id')

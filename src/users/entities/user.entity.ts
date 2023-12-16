@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
+} from 'typeorm';
 import { Vote } from '../../votes/entities/vote.entity';
 
 @Entity('users')
@@ -17,6 +23,9 @@ export class User {
 
   @OneToMany(() => Vote, (vote) => vote.user)
   votes: Vote[];
+
+  @ManyToMany(() => Vote, (vote) => vote.usersVoted)
+  voted: Vote[];
 
   @Column({ nullable: true })
   phone: string;

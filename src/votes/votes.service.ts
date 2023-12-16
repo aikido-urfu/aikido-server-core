@@ -7,12 +7,14 @@ import { Vote } from './entities/vote.entity';
 import { QuestionsService } from 'src/questions/questions.service';
 import { User } from 'src/users/entities/user.entity';
 import { AnswersService } from 'src/answers/answers.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class VotesService {
   constructor(
     @InjectRepository(Vote)
     private repository: Repository<Vote>,
+    private usersService: UsersService,
     private questionsService: QuestionsService,
     private answersService: AnswersService,
   ) {}
@@ -85,7 +87,7 @@ export class VotesService {
     return { votes: result };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, userId: number) {
     const vote = await this.repository.findOne({
       where: { id },
       relations: ['user', 'questions'],
@@ -98,10 +100,20 @@ export class VotesService {
       question.answers = [];
 
       for (const answer of answers) {
+        const users = [];
+        for (const userId of answer.users) {
+          const user = await this.usersService.findById(userId);
+          users.push({
+            id: user.id,
+            fullName: user.fullName,
+            photo: user.photo,
+          });
+        }
         question.answers.push({
           id: answer.id,
           text: answer.text,
           count: answer.count,
+          users,
           // @ts-ignore
           questions: undefined,
         });
@@ -110,7 +122,21 @@ export class VotesService {
 
     vote.questions = [...questions];
 
-    return { ...vote };
+    const isAdmin = userId === vote.user.id ? 'admin' : 'user';
+
+    const users = [];
+    for (const id of vote.usersVoted) {
+      const user = await this.usersService.findById(id);
+      users.push({
+        id: user.id,
+        fullName: user.fullName,
+        photo: user.photo,
+      });
+    }
+
+    const isVoted = vote.usersVoted.includes(userId);
+
+    return { ...vote, isAdmin, isVoted, usersVoted: users };
   }
 
   async update(id: number, updateVoteDto: UpdateVoteDto) {
@@ -154,8 +180,16 @@ export class VotesService {
     await this.repository.save(newVote);
   }
 
-  async voting(id: number) {
-    ///
+  async voting(id: number, userId: number, userAnswers: {}) {
+    await Object.values(userAnswers).forEach((value) => {
+      this.answersService.voting(value, userId);
+    });
+
+    const vote = await this.repository.findOne({ where: { id } });
+    vote.usersVoted.push(userId);
+
+    await this.repository.save(vote);
+    return;
   }
 
   async remove(id: number, userId: number) {

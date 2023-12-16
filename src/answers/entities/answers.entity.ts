@@ -12,6 +12,9 @@ export class Answers {
   @Column()
   count: number;
 
+  @Column('integer', { array: true, default: [] })
+  users?: number[];
+
   @ManyToOne(() => Questions, (questions) => questions.answers)
   questions: Questions;
 }

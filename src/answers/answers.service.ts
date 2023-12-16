@@ -41,4 +41,15 @@ export class AnswersService {
 
     return;
   }
+
+  async voting(id, userId) {
+    const answer = await this.repository.findOneBy(id);
+
+    answer.count++;
+
+    answer.users.push(userId);
+
+    await this.repository.save(answer);
+    return;
+  }
 }

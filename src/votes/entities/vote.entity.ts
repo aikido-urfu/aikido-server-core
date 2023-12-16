@@ -49,6 +49,9 @@ export class Vote {
   @ManyToOne(() => User, (user) => user.votes)
   user: User;
 
+  @Column('integer', { array: true, default: [] })
+  usersVoted: number[];
+
   @OneToMany(() => Questions, (questions) => questions.vote)
   questions: Questions[];
 }
