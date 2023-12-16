@@ -58,7 +58,10 @@ export class VotesService {
   }
 
   async findAll() {
-    const votes = await this.repository.find();
+    const votes = await this.repository.find({
+      relations: ['user'],
+    });
+
     const result = [];
 
     await votes.forEach((el) => {
@@ -69,7 +72,7 @@ export class VotesService {
         dateOfStart: el.dateOfStart,
         dateOfEnd: el.dateOfEnd,
         creationDate: el.creationDate,
-        isAnonymous: false, ///fix
+        isAnonymous: el.isAnonymous,
         isActive: el.isActive,
         isPrivate: el.isPrivate,
         privateUsers: el.privateUsers,

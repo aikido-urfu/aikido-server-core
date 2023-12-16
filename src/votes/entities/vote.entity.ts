@@ -34,6 +34,9 @@ export class Vote {
   @Column()
   isPrivate: boolean;
 
+  @Column()
+  isAnonymous: boolean;
+
   @Column('integer', { array: true, nullable: true })
   privateUsers?: number[];
 
