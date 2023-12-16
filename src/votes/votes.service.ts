@@ -57,18 +57,81 @@ export class VotesService {
     this.questionsService.save(questions, newVote.id);
   }
 
-  findAll() {
-    return `This action returns all votes`;
+  async findAll() {
+    const votes = await this.repository.find();
+    const result = [];
+
+    await votes.forEach((el) => {
+      result.push({
+        id: el.id,
+        title: el.title,
+        description: el.description,
+        dateOfStart: el.dateOfStart,
+        dateOfEnd: el.dateOfEnd,
+        creationDate: el.creationDate,
+        isAnonymous: false, ///fix
+        isActive: el.isActive,
+        isPrivate: el.isPrivate,
+        privateUsers: el.privateUsers,
+        photos: [],
+      });
+    });
+
+    return { votes: result };
   }
 
-  // findByEmail(email: string) {
-  //   return this.repository.findOneBy({
-  //     email,
-  //   });
-  // }
+  async findOne(id: number) {
+    const vote = await this.repository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
 
-  update(id: number, updateVoteDto: UpdateVoteDto) {
-    return `This action updates a #${id} vote`;
+    return { ...vote };
+  }
+
+  async update(id: number, updateVoteDto: UpdateVoteDto) {
+    const {
+      title,
+      isAnonymous,
+      isHidenCount,
+      isPrivate,
+      questions,
+      description,
+      isActive,
+      dateOfStart,
+      dateOfEnd,
+      privateUsers,
+      files,
+      photos,
+    } = updateVoteDto;
+
+    if (!id || !title || !questions || !questions.length) {
+      throw new ForbiddenException('Отсутсвуют необходимые поля');
+    }
+
+    const voteData = {
+      title,
+      description,
+      isActive: isActive ?? true,
+      dateOfStart,
+      dateOfEnd,
+      creationDate: Date.now() + '',
+      isPrivate: isPrivate ?? false,
+      isAnonymous: isAnonymous ?? true,
+      isHidenCount: isHidenCount ?? false,
+      privateUsers,
+      files,
+      photos,
+    };
+
+    const oldVote = await this.repository.findOneBy({ id });
+    const newVote = { ...oldVote, ...voteData };
+
+    await this.repository.save(newVote);
+  }
+
+  async voting(id: number) {
+    ///
   }
 
   async remove(id: number, userId: number) {
