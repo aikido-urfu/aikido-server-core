@@ -22,6 +22,14 @@ export class AnswersService {
     });
   }
 
+  async findById(questionId) {
+    const answers = await this.repository.findBy({
+      questions: { id: questionId },
+    });
+
+    return answers;
+  }
+
   async delete(question) {
     const answers = await this.repository.findBy({
       questions: { id: question },

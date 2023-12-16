@@ -6,6 +6,7 @@ import { DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { Vote } from './entities/vote.entity';
 import { QuestionsService } from 'src/questions/questions.service';
 import { User } from 'src/users/entities/user.entity';
+import { AnswersService } from 'src/answers/answers.service';
 
 @Injectable()
 export class VotesService {
@@ -13,6 +14,7 @@ export class VotesService {
     @InjectRepository(Vote)
     private repository: Repository<Vote>,
     private questionsService: QuestionsService,
+    private answersService: AnswersService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
@@ -86,8 +88,27 @@ export class VotesService {
   async findOne(id: number) {
     const vote = await this.repository.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ['user', 'questions'],
     });
+
+    const questions = [...vote.questions];
+
+    for (const question of questions) {
+      const answers = await this.answersService.findById(question.id);
+      question.answers = [];
+
+      for (const answer of answers) {
+        question.answers.push({
+          id: answer.id,
+          text: answer.text,
+          count: answer.count,
+          // @ts-ignore
+          questions: undefined,
+        });
+      }
+    }
+
+    vote.questions = [...questions];
 
     return { ...vote };
   }
