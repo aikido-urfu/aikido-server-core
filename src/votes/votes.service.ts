@@ -8,6 +8,8 @@ import { QuestionsService } from 'src/questions/questions.service';
 import { User } from 'src/users/entities/user.entity';
 import { AnswersService } from 'src/answers/answers.service';
 import { UsersService } from 'src/users/users.service';
+import { FilesService } from 'src/files/files.service';
+import multer, { Multer } from 'multer';
 
 @Injectable()
 export class VotesService {
@@ -17,6 +19,7 @@ export class VotesService {
     private usersService: UsersService,
     private questionsService: QuestionsService,
     private answersService: AnswersService,
+    private filesService: FilesService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
@@ -37,6 +40,24 @@ export class VotesService {
 
     if (!userId || !title || !questions || !questions.length) {
       throw new ForbiddenException('Отсутсвуют необходимые поля');
+    }
+
+    const filesIds = [];
+
+    if (files && files.length) {
+      for (const file of files) {
+        const savedFile = await this.filesService.create(file);
+        // filesIds.push(savedFile.id);
+      }
+    }
+
+    const photosIds = [];
+
+    if (photos && photos.length) {
+      for (const photo of photos) {
+        const savedPhoto = await this.filesService.create(photo);
+        // photosIds.push(savedPhoto.id);
+      }
     }
 
     const voteData = {
@@ -109,13 +130,12 @@ export class VotesService {
             photo: user.photo,
           });
         }
+        // @ts-ignore
         question.answers.push({
           id: answer.id,
           text: answer.text,
           count: answer.count,
           users,
-          // @ts-ignore
-          questions: undefined,
         });
       }
     }

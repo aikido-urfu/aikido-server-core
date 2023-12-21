@@ -11,6 +11,8 @@ import { Vote } from './votes/entities/vote.entity';
 import { Questions } from './questions/entities/questions.entity';
 import { Answers } from './answers/entities/answers.entity';
 import { TelegramModule } from './telegram/telegram.module';
+import { FilesModule } from './files/files.module';
+import { FileEntity } from './files/entities/file.entity';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { TelegramModule } from './telegram/telegram.module';
     UsersModule,
     VotesModule,
     AuthModule,
+    // FilesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -25,7 +28,7 @@ import { TelegramModule } from './telegram/telegram.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Vote, Questions, Answers],
+      entities: [User, Vote, Questions, Answers, FileEntity],
       synchronize: true,
     }),
     TelegramModule,

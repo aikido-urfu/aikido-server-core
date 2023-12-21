@@ -11,6 +11,35 @@ export const GetVote = {
       isAdmin: {
         type: 'string',
       },
+      user: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'number',
+          },
+          email: {
+            type: 'string',
+          },
+          password: {
+            type: 'string',
+          },
+          fullName: {
+            type: 'string',
+          },
+          phone: {
+            type: 'string',
+          },
+          photo: {
+            type: 'string',
+          },
+          telegram: {
+            type: 'string',
+          },
+          telegramUserID: {
+            type: 'string',
+          },
+        },
+      },
       isVoted: {
         type: 'boolean',
       },

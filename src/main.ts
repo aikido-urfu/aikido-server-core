@@ -1,8 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import * as express from 'express';
+import { join } from 'path';
+import * as serveStatic from 'serve-static';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import { createServer } from 'http';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as path from 'path';
 
 async function bootstrap() {
+  const server = express();
+  server.use('/uploads', serveStatic(join(__dirname, '..', 'uploads'))); // Указывает папку с файлами
+
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({ credentials: true, origin: true });
