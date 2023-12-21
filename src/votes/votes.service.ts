@@ -202,7 +202,13 @@ export class VotesService {
 
   async voting(id: number, userId: number, userAnswers: {}) {
     await Object.values(userAnswers).forEach((value) => {
-      this.answersService.voting(value, userId);
+      if (Array.isArray(value)) {
+        for (const answer of value) {
+          this.answersService.voting(answer, userId);
+        }
+      } else {
+        this.answersService.voting(value, userId);
+      }
     });
 
     const vote = await this.repository.findOne({ where: { id } });
