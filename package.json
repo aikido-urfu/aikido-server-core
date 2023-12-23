@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "description": "Nest TypeScript starter repository",
   "license": "MIT",
+  "bin": "dist/src/main.js",
   "scripts": {
+    "deploy": "npm run build && pkg . -t node18-linux-x64 -o app-linux && node ./scripts/deploy.js",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
