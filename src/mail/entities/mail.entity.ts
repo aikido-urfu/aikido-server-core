@@ -19,6 +19,9 @@ export class Mail {
   @Column()
   text: string;
 
+  @Column()
+  date: string;
+
   @Column('text', { array: true, nullable: true })
   files?: string[];
 

@@ -21,139 +21,166 @@ export class VotesService {
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
-    const {
-      title,
-      isAnonymous,
-      isHidenCount,
-      isPrivate,
-      questions,
-      description,
-      isActive,
-      dateOfStart,
-      dateOfEnd,
-      privateUsers,
-      files,
-      photos,
-    } = createVoteDto;
+    try {
+      const {
+        title,
+        isAnonymous,
+        isHidenCount,
+        isPrivate,
+        questions,
+        description,
+        isActive,
+        dateOfStart,
+        dateOfEnd,
+        privateUsers,
+        files,
+        photos,
+      } = createVoteDto;
 
-    if (!userId || !title || !questions || !questions.length) {
-      throw new ForbiddenException('Отсутсвуют необходимые поля');
-    }
-
-    const filesIds = [];
-
-    if (files && files.length) {
-      for (const file of files) {
-        const savedFile = await saveFile(file);
-        filesIds.push(savedFile);
+      if (!userId || !title || !questions || !questions.length) {
+        throw new ForbiddenException('Отсутсвуют необходимые поля');
       }
-    }
 
-    const photosIds = [];
+      const filesIds = [];
 
-    if (photos && photos.length) {
-      for (const photo of photos) {
-        const savedPhoto = await saveFile(photo);
-        photosIds.push(savedPhoto);
+      if (files && files.length) {
+        for (const file of files) {
+          const savedFile = await saveFile(file);
+          filesIds.push(savedFile);
+        }
       }
+
+      const photosIds = [];
+
+      if (photos && photos.length) {
+        for (const photo of photos) {
+          const savedPhoto = await saveFile(photo);
+          photosIds.push(savedPhoto);
+        }
+      }
+
+      const voteData = {
+        user: userId as DeepPartial<User>,
+        title,
+        description,
+        isActive: isActive ?? true,
+        dateOfStart,
+        dateOfEnd,
+        creationDate: Date.now() + '',
+        isPrivate: isPrivate ?? false,
+        isAnonymous: isAnonymous ?? true,
+        isHidenCount: isHidenCount ?? false,
+        privateUsers,
+        files,
+        photos,
+      };
+
+      const newVote = this.repository.create(voteData);
+      await this.questionsService.save(questions, newVote.id);
+      await this.repository.save(newVote);
+    } catch (error) {
+      throw new ForbiddenException(error);
     }
-
-    const voteData = {
-      user: userId as DeepPartial<User>,
-      title,
-      description,
-      isActive: isActive ?? true,
-      dateOfStart,
-      dateOfEnd,
-      creationDate: Date.now() + '',
-      isPrivate: isPrivate ?? false,
-      isAnonymous: isAnonymous ?? true,
-      isHidenCount: isHidenCount ?? false,
-      privateUsers,
-      files,
-      photos,
-    };
-
-    const newVote = this.repository.create(voteData);
-    await this.questionsService.save(questions, newVote.id);
-    await this.repository.save(newVote);
   }
 
   async findAll() {
-    const votes = await this.repository.find({
-      relations: ['user'],
-    });
-
-    const result = [];
-
-    await votes.forEach((el) => {
-      result.push({
-        id: el.id,
-        title: el.title,
-        description: el.description,
-        dateOfStart: el.dateOfStart,
-        dateOfEnd: el.dateOfEnd,
-        creationDate: el.creationDate,
-        isAnonymous: el.isAnonymous,
-        isActive: el.isActive,
-        isPrivate: el.isPrivate,
-        privateUsers: el.privateUsers,
-        photos: [],
+    try {
+      const votes = await this.repository.find({
+        relations: ['user'],
       });
-    });
 
-    return { votes: result };
+      const result = [];
+
+      await votes.forEach((el) => {
+        result.push({
+          id: el.id,
+          title: el.title,
+          description: el.description,
+          dateOfStart: el.dateOfStart,
+          dateOfEnd: el.dateOfEnd,
+          creationDate: el.creationDate,
+          isAnonymous: el.isAnonymous,
+          isActive: el.isActive,
+          isPrivate: el.isPrivate,
+          privateUsers: el.privateUsers,
+          photos: [],
+        });
+      });
+
+      return { votes: result };
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
+  async findMy(userId: number) {
+    try {
+      const votes = await this.repository.find({
+        where: {
+          user: { id: userId },
+        },
+        relations: ['user'], // Загрузка информации пользователя вместе с голосами, если это требуется
+      });
+
+      return votes;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async findOne(id: number, userId: number) {
-    const vote = await this.repository.findOne({
-      where: { id },
-      relations: ['user', 'questions'],
-    });
+    try {
+      const vote = await this.repository.findOne({
+        where: { id },
+        relations: ['user', 'questions'],
+      });
 
-    const questions = [...vote.questions];
+      const questions = [...vote.questions];
 
-    for (const question of questions) {
-      const answers = await this.answersService.findById(question.id);
-      question.answers = [];
+      for (const question of questions) {
+        const answers = await this.answersService.findById(question.id);
+        question.answers = [];
 
-      for (const answer of answers) {
-        const users = [];
-        for (const userId of answer.users) {
-          const user = await this.usersService.findById(userId);
-          users.push({
-            id: user.id,
-            fullName: user.fullName,
-            photo: user.photo,
+        for (const answer of answers) {
+          const users = [];
+          for (const userId of answer.users) {
+            const user = await this.usersService.findById(userId);
+            users.push({
+              id: user.id,
+              fullName: user.fullName,
+              photo: user.photo,
+            });
+          }
+          // @ts-ignore
+          question.answers.push({
+            id: answer.id,
+            text: answer.text,
+            count: answer.count,
+            users,
           });
         }
-        // @ts-ignore
-        question.answers.push({
-          id: answer.id,
-          text: answer.text,
-          count: answer.count,
-          users,
+      }
+
+      vote.questions = [...questions];
+
+      const isAdmin = userId === vote.user.id ? 'admin' : 'user';
+
+      const users = [];
+      for (const id of vote.usersVoted) {
+        const user = await this.usersService.findById(id);
+        users.push({
+          id: user.id,
+          fullName: user.fullName,
+          photo: user.photo,
         });
       }
+
+      const isVoted = vote.usersVoted.includes(userId);
+
+      return { ...vote, isAdmin, isVoted, usersVoted: users };
+    } catch (error) {
+      throw new ForbiddenException(error);
     }
-
-    vote.questions = [...questions];
-
-    const isAdmin = userId === vote.user.id ? 'admin' : 'user';
-
-    const users = [];
-    for (const id of vote.usersVoted) {
-      const user = await this.usersService.findById(id);
-      users.push({
-        id: user.id,
-        fullName: user.fullName,
-        photo: user.photo,
-      });
-    }
-
-    const isVoted = vote.usersVoted.includes(userId);
-
-    return { ...vote, isAdmin, isVoted, usersVoted: users };
   }
 
   async update(id: number, updateVoteDto: UpdateVoteDto) {
@@ -176,6 +203,24 @@ export class VotesService {
       throw new ForbiddenException('Отсутсвуют необходимые поля');
     }
 
+    const filesIds = [];
+
+    if (files && files.length) {
+      for (const file of files) {
+        const savedFile = await saveFile(file);
+        filesIds.push(savedFile);
+      }
+    }
+
+    const photosIds = [];
+
+    if (photos && photos.length) {
+      for (const photo of photos) {
+        const savedPhoto = await saveFile(photo);
+        photosIds.push(savedPhoto);
+      }
+    }
+
     const voteData = {
       title,
       description,
@@ -187,32 +232,53 @@ export class VotesService {
       isAnonymous: isAnonymous ?? true,
       isHidenCount: isHidenCount ?? false,
       privateUsers,
-      files,
-      photos,
+      files: filesIds,
+      photos: photosIds,
     };
 
-    const oldVote = await this.repository.findOneBy({ id });
-    const newVote = { ...oldVote, ...voteData };
+    try {
+      const oldVote = await this.repository.findOneBy({ id });
+      const newVote = { ...oldVote, ...voteData };
 
-    await this.repository.save(newVote);
+      await this.repository.save(newVote);
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async voting(id: number, userId: number, userAnswers: {}) {
-    await Object.values(userAnswers).forEach((value) => {
-      if (Array.isArray(value)) {
-        for (const answer of value) {
-          this.answersService.voting(answer, userId);
+    try {
+      const vote = await this.repository.findOne({ where: { id } });
+      let isUserVoted;
+
+      for (const question of vote.questions) {
+        for (const answer of question.answers) {
+          if (answer.users.includes(userId)) {
+            answer.count--;
+            isUserVoted = true;
+          }
         }
-      } else {
-        this.answersService.voting(value, userId);
       }
-    });
 
-    const vote = await this.repository.findOne({ where: { id } });
-    vote.usersVoted.push(userId);
+      await Object.values(userAnswers).forEach((value) => {
+        if (Array.isArray(value)) {
+          for (const answer of value) {
+            this.answersService.voting(answer, userId);
+          }
+        } else {
+          this.answersService.voting(value, userId);
+        }
+      });
 
-    await this.repository.save(vote);
-    return;
+      if (!isUserVoted) {
+        vote.usersVoted.push(userId);
+      }
+
+      await this.repository.save(vote);
+      return;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async remove(id: number, userId: number) {

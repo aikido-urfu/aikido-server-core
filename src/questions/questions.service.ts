@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Questions } from './entities/questions.entity';
@@ -14,49 +14,57 @@ export class QuestionsService {
   ) {}
 
   async save(questions, voteId) {
-    questions.forEach(async (el: Questions) => {
-      const filesIds = [];
+    try {
+      questions.forEach(async (el: Questions) => {
+        const filesIds = [];
 
-      if (el.files && el.files.length) {
-        for (const file of el.files) {
-          const savedFile = await saveFile(file);
-          filesIds.push(savedFile);
+        if (el.files && el.files.length) {
+          for (const file of el.files) {
+            const savedFile = await saveFile(file);
+            filesIds.push(savedFile);
+          }
         }
-      }
 
-      const photosIds = [];
+        const photosIds = [];
 
-      if (el.photos && el.photos.length) {
-        for (const photo of el.photos) {
-          const savedPhoto = await saveFile(photo);
-          photosIds.push(savedPhoto);
+        if (el.photos && el.photos.length) {
+          for (const photo of el.photos) {
+            const savedPhoto = await saveFile(photo);
+            photosIds.push(savedPhoto);
+          }
         }
-      }
 
-      const question = {
-        vote: voteId,
-        title: el.title,
-        description: el.description,
-        files: filesIds,
-        photos: photosIds,
-        isMultiply: el.isMultiply,
-      };
+        const question = {
+          vote: voteId,
+          title: el.title,
+          description: el.description,
+          files: filesIds,
+          photos: photosIds,
+          isMultiply: el.isMultiply,
+        };
 
-      const newQuestion = this.repository.create(question);
+        const newQuestion = this.repository.create(question);
 
-      await this.answersService.save(el.answers, newQuestion.id);
-      await this.repository.save(newQuestion);
-    });
+        await this.answersService.save(el.answers, newQuestion.id);
+        await this.repository.save(newQuestion);
+      });
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async delete(vote) {
-    const questions = await this.repository.findBy({ vote: { id: vote } });
+    try {
+      const questions = await this.repository.findBy({ vote: { id: vote } });
 
-    await questions.forEach(async (el) => {
-      await this.answersService.delete(el.id);
-      await this.repository.delete(el.id);
-    });
+      await questions.forEach(async (el) => {
+        await this.answersService.delete(el.id);
+        await this.repository.delete(el.id);
+      });
 
-    return;
+      return;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 }

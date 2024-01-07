@@ -28,15 +28,15 @@ export class TelegramController {
   @Get('/votes')
   @ApiBody(TelegramId)
   @ApiResponse(Votes)
-  findAll() {
-    return this.telegramService.findAll();
+  findAll(@Body() body: { tgid: string }) {
+    return this.telegramService.findAll(body.tgid);
   }
 
   @Get('/mail')
   @ApiBody(TelegramId)
   @ApiResponse(Mail)
-  findOne(@Param('id') id: string) {
-    return this.telegramService.findOne(+id);
+  findMail(@Body() body: { tgid: string }) {
+    return this.telegramService.findMail(body.tgid);
   }
 
   @Delete('/unsubscribe')

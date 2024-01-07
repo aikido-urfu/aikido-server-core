@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { Repository, getManager } from 'typeorm';
 import { User } from './entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
+import { saveFile } from 'src/tools/saveFile';
 
 @Injectable()
 export class UsersService {
@@ -15,46 +16,100 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    // const maxId = await this.repository
-    //   .createQueryBuilder('users')
-    //   .select('MAX(users.id)', 'maxId')
-    //   .getRawOne();
-
-    // const newId = maxId.maxId + 1;
-
-    const newUser = await this.repository.create(createUserDto);
-
-    await this.repository.save(newUser);
-
-    return { id: newUser.id };
+    try {
+      const newUser = await this.repository.create(createUserDto);
+      await this.repository.save(newUser);
+      return { id: newUser.id };
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async findByEmail(email: string) {
-    return this.repository.findOneBy({
-      email,
-    });
+    try {
+      return this.repository.findOneBy({
+        email,
+      });
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async findById(id: number) {
-    return this.repository.findOneBy({
-      id,
-    });
+    try {
+      const user = await this.repository.findOneBy({
+        id,
+      });
+
+      const response = {
+        id: user.id,
+        fullName: user.fullName,
+        photo: user.photo,
+        phone: user.phone,
+        telegram: user.telegram,
+      };
+
+      return response;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
+  async findByTgid(telegramUserID: string) {
+    try {
+      const user = await this.repository.findOneBy({
+        telegramUserID,
+      });
+
+      return user.id;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async findByJWT(id) {
     return this.repository.getId;
   }
 
-  findAll() {
-    return this.repository.find();
+  async findAll() {
+    try {
+      const users = await this.repository.find();
+      const response = [];
+
+      for (const user of users) {
+        await response.push({
+          id: user.id,
+          fullName: user.fullName,
+          photo: user.photo,
+          phone: user.phone,
+          telegram: user.telegram,
+        });
+      }
+
+      return response;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   findOne(id: number) {
     return { id };
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      const oldVote = await this.repository.findOneBy({ id });
+
+      const newVote = await {
+        ...oldVote,
+        ...updateUserDto,
+        photo: await saveFile(oldVote.photo),
+      };
+
+      await this.repository.save(newVote);
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   remove(id: number) {

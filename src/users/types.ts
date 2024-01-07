@@ -17,6 +17,20 @@ export const UpdateUser = {
       telegram: {
         type: 'string',
       },
+      photo: {
+        type: 'object',
+        properties: {
+          file: {
+            type: 'string',
+          },
+          name: {
+            type: 'string',
+          },
+          type: {
+            type: 'string',
+          },
+        },
+      },
     },
   },
 };
@@ -39,6 +53,9 @@ export const GetUsers = {
         phone: {
           type: 'string',
         },
+        photo: {
+          type: 'string',
+        },
       },
     },
   },
@@ -55,6 +72,9 @@ export const GetUser = {
         type: 'string',
       },
       phone: {
+        type: 'string',
+      },
+      photo: {
         type: 'string',
       },
     },

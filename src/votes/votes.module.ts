@@ -16,5 +16,6 @@ import { UsersModule } from 'src/users/users.module';
     QuestionsModule,
     AnswersModule,
   ],
+  exports: [VotesService],
 })
 export class VotesModule {}

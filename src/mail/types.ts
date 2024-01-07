@@ -64,6 +64,9 @@ export const GetMail = {
             isReaden: {
               type: 'boolean',
             },
+            date: {
+              type: 'string',
+            },
             theme: {
               type: 'string',
             },

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Answers } from './entities/answers.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,45 +11,76 @@ export class AnswersService {
   ) {}
 
   async save(answers, questionId) {
-    answers.forEach(async (el) => {
-      const answer = {
-        questions: questionId,
-        text: el,
-        count: 0,
-      };
+    try {
+      answers.forEach(async (el) => {
+        const answer = {
+          questions: questionId,
+          text: el,
+          count: 0,
+        };
 
-      this.repository.save(answer);
-    });
+        this.repository.save(answer);
+      });
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async findById(questionId) {
-    const answers = await this.repository.findBy({
-      questions: { id: questionId },
-    });
+    try {
+      const answers = await this.repository.findBy({
+        questions: { id: questionId },
+      });
 
-    return answers;
+      return answers;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async delete(question) {
-    const answers = await this.repository.findBy({
-      questions: { id: question },
-    });
+    try {
+      const answers = await this.repository.findBy({
+        questions: { id: question },
+      });
 
-    await answers.forEach(async (el) => {
-      this.repository.delete(el.id);
-    });
+      await answers.forEach(async (el) => {
+        this.repository.delete(el.id);
+      });
 
-    return;
+      return;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async voting(id, userId) {
-    const answer = await this.repository.findOneBy(id);
+    try {
+      const answer = await this.repository.findOneBy(id);
 
-    answer.count++;
+      answer.count++;
 
-    answer.users.push(userId);
+      answer.users.push(userId);
 
-    await this.repository.save(answer);
-    return;
+      await this.repository.save(answer);
+      return;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
+  async unvoting(id, userId) {
+    try {
+      const answer = await this.repository.findOneBy(id);
+
+      answer.count++;
+
+      answer.users.push(userId);
+
+      await this.repository.save(answer);
+      return;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 }
