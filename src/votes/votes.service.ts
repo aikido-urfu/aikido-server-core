@@ -103,7 +103,7 @@ export class VotesService {
           isActive: el.isActive,
           isPrivate: el.isPrivate,
           privateUsers: el.privateUsers,
-          photos: [],
+          photos: el.photos,
         });
       });
 
