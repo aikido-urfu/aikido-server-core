@@ -258,7 +258,18 @@ export const GetVotes = {
             photos: {
               type: 'array',
               items: {
-                type: 'string',
+                type: 'object',
+                properties: {
+                  id: {
+                    default: 'url',
+                  },
+                  name: {
+                    type: 'string',
+                  },
+                  type: {
+                    type: 'string',
+                  },
+                },
               },
             },
           },
