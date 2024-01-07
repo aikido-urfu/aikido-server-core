@@ -2,14 +2,13 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { Vote } from './entities/vote.entity';
 import { QuestionsService } from 'src/questions/questions.service';
 import { User } from 'src/users/entities/user.entity';
 import { AnswersService } from 'src/answers/answers.service';
 import { UsersService } from 'src/users/users.service';
-import { FilesService } from 'src/files/files.service';
-import multer, { Multer } from 'multer';
+import { saveFile } from 'src/tools/saveFile';
 
 @Injectable()
 export class VotesService {
@@ -19,7 +18,6 @@ export class VotesService {
     private usersService: UsersService,
     private questionsService: QuestionsService,
     private answersService: AnswersService,
-    private filesService: FilesService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
@@ -46,8 +44,8 @@ export class VotesService {
 
     if (files && files.length) {
       for (const file of files) {
-        const savedFile = await this.filesService.create(file);
-        // filesIds.push(savedFile.id);
+        const savedFile = await saveFile(file);
+        filesIds.push(savedFile);
       }
     }
 
@@ -55,8 +53,8 @@ export class VotesService {
 
     if (photos && photos.length) {
       for (const photo of photos) {
-        const savedPhoto = await this.filesService.create(photo);
-        // photosIds.push(savedPhoto.id);
+        const savedPhoto = await saveFile(photo);
+        photosIds.push(savedPhoto);
       }
     }
 
@@ -77,9 +75,8 @@ export class VotesService {
     };
 
     const newVote = this.repository.create(voteData);
+    await this.questionsService.save(questions, newVote.id);
     await this.repository.save(newVote);
-
-    this.questionsService.save(questions, newVote.id);
   }
 
   async findAll() {

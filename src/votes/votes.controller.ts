@@ -9,26 +9,15 @@ import {
   UseGuards,
   Patch,
   UploadedFile,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  UseInterceptors,
 } from '@nestjs/common';
 import { VotesService } from './votes.service';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { PostVote, GetVotes, GetVote, PatchVote } from './types';
 import { UserId } from 'src/decorators/user-id.decorator';
-import multer, { Multer } from 'multer';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { fileStorage } from 'src/files/storage';
+import { Multer } from 'multer';
 
 @Controller('votes')
 @ApiTags('votes')
@@ -39,12 +28,7 @@ export class VotesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBody(PostVote)
-  @ApiConsumes('multipart/form-data')
-  create(
-    @Body() createVoteDto: CreateVoteDto,
-    @UserId() userId,
-    @UploadedFile() files: Array<Multer.File>,
-  ) {
+  create(@Body() createVoteDto: CreateVoteDto, @UserId() userId) {
     return this.votesService.create(createVoteDto, userId);
   }
 

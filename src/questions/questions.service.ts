@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Questions } from './entities/questions.entity';
 import { AnswersService } from 'src/answers/answers.service';
+import { saveFile } from 'src/tools/saveFile';
 
 @Injectable()
 export class QuestionsService {
@@ -14,19 +15,37 @@ export class QuestionsService {
 
   async save(questions, voteId) {
     questions.forEach(async (el: Questions) => {
+      const filesIds = [];
+
+      if (el.files && el.files.length) {
+        for (const file of el.files) {
+          const savedFile = await saveFile(file);
+          filesIds.push(savedFile);
+        }
+      }
+
+      const photosIds = [];
+
+      if (el.photos && el.photos.length) {
+        for (const photo of el.photos) {
+          const savedPhoto = await saveFile(photo);
+          photosIds.push(savedPhoto);
+        }
+      }
+
       const question = {
         vote: voteId,
         title: el.title,
         description: el.description,
-        files: el.files,
-        photos: el.files,
+        files: filesIds,
+        photos: photosIds,
         isMultiply: el.isMultiply,
       };
 
       const newQuestion = this.repository.create(question);
-      await this.repository.save(newQuestion);
 
-      this.answersService.save(el.answers, newQuestion.id);
+      await this.answersService.save(el.answers, newQuestion.id);
+      await this.repository.save(newQuestion);
     });
   }
 
