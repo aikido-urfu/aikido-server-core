@@ -10,14 +10,30 @@ export class CreateVoteDto {
   isHidenCount: boolean;
   isPrivate: boolean;
   privateUsers?: number[];
-  files?: string[];
-  photos?: string[];
+  files?: {
+    file: string;
+    name: string;
+    type: string;
+  }[];
+  photos?: {
+    file: string;
+    name: string;
+    type: string;
+  }[];
   questions: {
     title: string;
     description: string;
     answers: string[];
-    files: string[];
-    photos: string[];
+    files?: {
+      file: string;
+      name: string;
+      type: string;
+    }[];
+    photos?: {
+      file: string;
+      name: string;
+      type: string;
+    }[];
     isMultiply: boolean;
   }[];
 }

@@ -9,6 +9,7 @@ import { User } from 'src/users/entities/user.entity';
 import { AnswersService } from 'src/answers/answers.service';
 import { UsersService } from 'src/users/users.service';
 import { saveFile } from 'src/tools/saveFile';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class VotesService {
@@ -18,6 +19,7 @@ export class VotesService {
     private usersService: UsersService,
     private questionsService: QuestionsService,
     private answersService: AnswersService,
+    private filesService: FilesService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
@@ -45,7 +47,12 @@ export class VotesService {
 
       if (files && files.length) {
         for (const file of files) {
-          const savedFile = await saveFile(file);
+          const savedFile = await saveFile(file.file);
+          this.filesService.saveFile({
+            id: savedFile,
+            name: file.name,
+            type: file.type,
+          });
           filesIds.push(savedFile);
         }
       }
@@ -55,6 +62,11 @@ export class VotesService {
       if (photos && photos.length) {
         for (const photo of photos) {
           const savedPhoto = await saveFile(photo);
+          this.filesService.saveFile({
+            id: savedPhoto,
+            name: photo.name,
+            type: photo.type,
+          });
           photosIds.push(savedPhoto);
         }
       }
@@ -71,8 +83,8 @@ export class VotesService {
         isAnonymous: isAnonymous ?? true,
         isHidenCount: isHidenCount ?? false,
         privateUsers,
-        files,
-        photos,
+        files: filesIds,
+        photos: photosIds,
       };
 
       const newVote = this.repository.create(voteData);
@@ -91,7 +103,13 @@ export class VotesService {
 
       const result = [];
 
-      await votes.forEach((el) => {
+      for (const el of votes) {
+        const photos = [];
+
+        for (const photo of el.photos) {
+          const getPhoto = await this.filesService.getById(photo);
+          photos.push(getPhoto);
+        }
         result.push({
           id: el.id,
           title: el.title,
@@ -103,9 +121,9 @@ export class VotesService {
           isActive: el.isActive,
           isPrivate: el.isPrivate,
           privateUsers: el.privateUsers,
-          photos: el.photos,
+          photos,
         });
-      });
+      }
 
       return { votes: result };
     } catch (error) {
@@ -138,6 +156,20 @@ export class VotesService {
       const questions = [...vote.questions];
 
       for (const question of questions) {
+        const photos = [];
+        const files = [];
+
+        for (const photo of question.photos) {
+          photos.push(await this.filesService.getById(photo));
+        }
+
+        for (const file of question.files) {
+          files.push(await this.filesService.getById(file));
+        }
+
+        question.files = files;
+        question.photos = photos;
+
         const answers = await this.answersService.findById(question.id);
         question.answers = [];
 
@@ -177,7 +209,25 @@ export class VotesService {
 
       const isVoted = vote.usersVoted.includes(userId);
 
-      return { ...vote, isAdmin, isVoted, usersVoted: users };
+      const photosIds = [];
+      const filesIds = [];
+
+      for (const photo of vote.photos) {
+        photosIds.push(await this.filesService.getById(photo));
+      }
+
+      for (const file of vote.files) {
+        filesIds.push(await this.filesService.getById(file));
+      }
+
+      return {
+        ...vote,
+        isAdmin,
+        isVoted,
+        usersVoted: users,
+        photos: photosIds,
+        files: filesIds,
+      };
     } catch (error) {
       throw new ForbiddenException(error);
     }
@@ -208,6 +258,11 @@ export class VotesService {
     if (files && files.length) {
       for (const file of files) {
         const savedFile = await saveFile(file);
+        this.filesService.saveFile({
+          id: savedFile,
+          name: file.name,
+          type: file.type,
+        });
         filesIds.push(savedFile);
       }
     }
@@ -217,6 +272,11 @@ export class VotesService {
     if (photos && photos.length) {
       for (const photo of photos) {
         const savedPhoto = await saveFile(photo);
+        this.filesService.saveFile({
+          id: savedPhoto,
+          name: photo.name,
+          type: photo.type,
+        });
         photosIds.push(savedPhoto);
       }
     }

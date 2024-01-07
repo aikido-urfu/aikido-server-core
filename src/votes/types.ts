@@ -93,13 +93,35 @@ export const GetVote = {
       files: {
         type: 'array',
         items: {
-          type: 'string',
+          type: 'object',
+          properties: {
+            id: {
+              default: 'url',
+            },
+            name: {
+              type: 'string',
+            },
+            type: {
+              type: 'string',
+            },
+          },
         },
       },
       photos: {
         type: 'array',
         items: {
-          type: 'string',
+          type: 'object',
+          properties: {
+            id: {
+              default: 'url',
+            },
+            name: {
+              type: 'string',
+            },
+            type: {
+              type: 'string',
+            },
+          },
         },
       },
       questions: {
@@ -156,13 +178,35 @@ export const GetVote = {
             files: {
               type: 'array',
               items: {
-                type: 'string',
+                type: 'object',
+                properties: {
+                  id: {
+                    default: 'url',
+                  },
+                  name: {
+                    type: 'string',
+                  },
+                  type: {
+                    type: 'string',
+                  },
+                },
               },
             },
             photos: {
               type: 'array',
               items: {
-                type: 'string',
+                type: 'object',
+                properties: {
+                  id: {
+                    default: 'url',
+                  },
+                  name: {
+                    type: 'string',
+                  },
+                  type: {
+                    type: 'string',
+                  },
+                },
               },
             },
             isMultiply: {

@@ -6,6 +6,7 @@ import { Vote } from './entities/vote.entity';
 import { QuestionsModule } from 'src/questions/questions.module';
 import { AnswersModule } from 'src/answers/answers.module';
 import { UsersModule } from 'src/users/users.module';
+import { FilesModule } from 'src/files/files.module';
 
 @Module({
   controllers: [VotesController],
@@ -15,6 +16,7 @@ import { UsersModule } from 'src/users/users.module';
     UsersModule,
     QuestionsModule,
     AnswersModule,
+    FilesModule,
   ],
   exports: [VotesService],
 })
