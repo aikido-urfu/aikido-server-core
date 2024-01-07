@@ -10,10 +10,6 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  // getFile(@Param('id') id: string) {
-  //   return this.appService.getFile(id);
-  // }
-
   @Get('/uploads/:id')
   getImage(@Param('id') id: string, @Res() res) {
     const imagePath = this.appService.getFile(id);

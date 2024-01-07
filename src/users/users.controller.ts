@@ -22,8 +22,8 @@ export class UsersController {
 
   @Get()
   @ApiResponse(GetUsers)
-  findAll(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get('/publicKey')

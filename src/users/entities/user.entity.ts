@@ -4,8 +4,10 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Vote } from '../../votes/entities/vote.entity';
+import { Mail } from 'src/mail/entities/mail.entity';
 
 @Entity('users')
 export class User {
@@ -23,6 +25,9 @@ export class User {
 
   @OneToMany(() => Vote, (vote) => vote.user)
   votes: Vote[];
+
+  @OneToMany(() => Mail, (mail) => mail.user)
+  mailsSended: Mail[];
 
   @ManyToMany(() => Vote, (vote) => vote.usersVoted)
   voted: Vote[];
