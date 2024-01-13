@@ -10,12 +10,12 @@ export class FilesService {
     private repository: Repository<Files>,
   ) {}
 
-  async saveFile({ id, name, type }) {
-    return await this.repository.save({ id, name, type });
+  async saveFile({ url, name, type }) {
+    return await this.repository.save({ url, name, type });
   }
 
   async getById(id) {
-    const file = await this.repository.findOneBy(id);
+    const file = await this.repository.findOne({ where: { id } });
 
     return file;
   }

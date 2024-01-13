@@ -41,7 +41,7 @@ export class Vote {
   privateUsers?: number[];
 
   @Column('text', { array: true, nullable: true })
-  files?: string[];
+  files?: number[];
 
   @Column('text', { array: true, nullable: true })
   photos?: string[];

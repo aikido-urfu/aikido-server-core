@@ -1,10 +1,10 @@
-import { Controller, Get, Body, Param, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Body, Param, UseGuards, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
-import { GetKey, GetUser, GetUsers, UpdateUser } from './types';
+import { GetKey, GetMe, GetUser, GetUsers, UpdateUser } from './types';
 
 @Controller('users')
 @ApiTags('users')
@@ -26,6 +26,7 @@ export class UsersController {
 
   @Get('/me')
   @UseGuards(JwtAuthGuard)
+  @ApiResponse(GetMe)
   getMe(@UserId() id: number) {
     return this.usersService.findById(id);
   }
@@ -36,11 +37,11 @@ export class UsersController {
     return this.usersService.findById(+id);
   }
 
-  @Put(':id')
+  @Patch('/me')
   @UseGuards(JwtAuthGuard)
   @ApiBody(UpdateUser)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  update(@UserId() id: number, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
   }
 
   // @Delete(':id')

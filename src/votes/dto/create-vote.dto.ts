@@ -8,7 +8,7 @@ export class CreateVoteDto {
   isHidenCount: boolean;
   isPrivate: boolean;
   privateUsers?: number[];
-  files?: string[];
+  files?: number[];
   photos?: string[];
   questions: {
     title: string;

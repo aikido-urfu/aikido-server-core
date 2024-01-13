@@ -83,6 +83,9 @@ export const GetMe = {
       phone: {
         type: 'string',
       },
+      photo: {
+        type: 'string',
+      },
     },
   },
 };

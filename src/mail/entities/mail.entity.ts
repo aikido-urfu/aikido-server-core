@@ -16,7 +16,7 @@ export class Mail {
   date: string;
 
   @Column('text', { array: true, nullable: true })
-  files?: string[];
+  files?: number[];
 
   @Column('text', { array: true, nullable: true })
   photos?: string[];

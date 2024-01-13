@@ -6,8 +6,11 @@ export class Files {
   id: string;
 
   @Column()
+  url: string;
+
+  @Column()
   name: string;
 
   @Column()
-  type: number;
+  type: string;
 }

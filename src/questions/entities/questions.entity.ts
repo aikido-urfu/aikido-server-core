@@ -20,7 +20,7 @@ export class Questions {
   description: string;
 
   @Column('text', { array: true })
-  files: string[];
+  files: number[];
 
   @Column('text', { array: true })
   photos: string[];

@@ -17,7 +17,7 @@ import { API_URL } from 'API_URL';
 export class FilesController {
   constructor(private readonly fileService: FilesService) {}
 
-  @Post()
+  @Post('/file')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: fileStorage,
@@ -35,22 +35,45 @@ export class FilesController {
       },
     },
   })
-  async create(
+  async createFile(
     @UploadedFile(new ParseFilePipe({}))
     file: Multer.File,
   ) {
     const url = API_URL + 'uploads/' + file.filename;
 
-    await this.fileService.saveFile({
-      id: url,
+    const savedFile = await this.fileService.saveFile({
+      url,
       name: file.originalname,
-      type: file.type,
+      type: file.mimetype,
     });
 
-    return {
-      url: API_URL + 'uploads/' + file.filename,
-      name: file.originalname,
-      type: file.type,
-    };
+    return savedFile;
+  }
+
+  @Post('photo')
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      storage: fileStorage,
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        photo: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async create(
+    @UploadedFile(new ParseFilePipe({}))
+    photo: Multer.File,
+  ) {
+    const url = API_URL + 'uploads/' + photo.filename;
+
+    return { url };
   }
 }

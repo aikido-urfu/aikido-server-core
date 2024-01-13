@@ -23,9 +23,7 @@ export const PostMail = {
       photos: {
         type: 'array',
         items: {
-          items: {
-            type: 'string',
-          },
+          type: 'string',
         },
       },
     },
@@ -70,7 +68,15 @@ export const GetMail = {
             files: {
               type: 'array',
               items: {
-                type: 'string',
+                type: 'object',
+                properties: {
+                  id: {
+                    id: 'number',
+                    url: 'string',
+                    name: 'string',
+                    type: 'string',
+                  },
+                },
               },
             },
             photos: {

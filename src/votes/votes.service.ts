@@ -119,6 +119,12 @@ export class VotesService {
         relations: ['user', 'questions'],
       });
 
+      const voteFiles = [];
+      for (const voteFile of vote.files) {
+        const getFile = await this.filesService.getById(voteFile);
+        await voteFiles.push(getFile);
+      }
+
       const author = {
         id: vote.user.id,
         email: vote.user.email,
@@ -131,6 +137,12 @@ export class VotesService {
       const questions = [...vote.questions];
 
       for (const question of questions) {
+        const questionFiles = [];
+        for (const questionFile of question.files) {
+          const getFile = await this.filesService.getById(questionFile);
+          await questionFiles.push(getFile);
+        }
+        question.files = await questionFiles;
         const answers = await this.answersService.findById(question.id);
         question.answers = [];
 
@@ -173,6 +185,7 @@ export class VotesService {
 
       return {
         ...vote,
+        files: voteFiles,
         isAdmin,
         isVoted,
         usersVoted: users,

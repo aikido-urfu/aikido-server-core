@@ -4,12 +4,14 @@ import { saveFile } from 'src/tools/saveFile';
 import { Repository } from 'typeorm';
 import { Mail } from './entities/mail.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class MailService {
   constructor(
     @InjectRepository(Mail)
     private repository: Repository<Mail>,
+    private filesService: FilesService,
   ) {}
 
   async create(userId, createMailDto: CreateMailDto) {
@@ -22,8 +24,8 @@ export class MailService {
         receivers,
         text,
         date: new Date().toISOString(),
-        files: photos,
-        photos: files,
+        files,
+        photos,
         readenByUsers: [],
       };
 
@@ -45,13 +47,21 @@ export class MailService {
       const response = [];
 
       for (const el of result) {
+        const files = [];
+        for (const file of el.files) {
+          console.log(file);
+          files.push(await this.filesService.getById(file));
+        }
+
+        console.log(files);
+
         response.push({
           id: el.id,
           theme: el.theme,
           text: el.text,
           date: el.date,
           photos: el.photos,
-          files: el.files,
+          files,
           isReaden:
             el.readenByUsers && el.readenByUsers.includes(userId)
               ? true
