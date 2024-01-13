@@ -1,6 +1,6 @@
 export class CreateMailDto {
   theme: string;
-  recievers: number[];
+  receivers: number[];
   text: string;
   files: {
     file: string;

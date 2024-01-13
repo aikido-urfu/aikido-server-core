@@ -5,23 +5,25 @@ import { DeepPartial, Repository } from 'typeorm';
 import { Mail } from './entities/mail.entity';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class MailService {
   constructor(
     @InjectRepository(Mail)
     private repository: Repository<Mail>,
+    private usersService: UsersService,
   ) {}
 
   async create(userId, createMailDto: CreateMailDto) {
     try {
-      const { theme, recievers, text, files, photos } = createMailDto;
+      const { theme, receivers, text, files, photos } = createMailDto;
       const filesIds = [];
 
       if (files && files.length) {
         for (const file of files) {
           const savedFile = await saveFile(file);
-          await filesIds.push(savedFile);
+          filesIds.push(savedFile);
         }
       }
 
@@ -30,15 +32,19 @@ export class MailService {
       if (photos && photos.length) {
         for (const photo of photos) {
           const savedPhoto = await saveFile(photo);
-          await photosIds.push(savedPhoto);
+          photosIds.push(savedPhoto);
         }
       }
 
-      const mailData = await {
+      const mailData = {
         user: userId,
         theme,
-        recievers,
+        receivers,
         text,
+        date: new Date().toISOString(),
+        files: filesIds,
+        photos: photosIds,
+        readenByUsers: [],
       };
 
       const mail = await this.repository.save(mailData);
@@ -53,7 +59,7 @@ export class MailService {
       const mails = await this.repository.find({ relations: ['user'] });
 
       const result = await mails.filter(
-        (el) => el.recievers && el.recievers.includes(userId),
+        (el) => el.receivers && el.receivers.includes(userId),
       );
 
       const response = [];
@@ -70,7 +76,7 @@ export class MailService {
             el.readenByUsers && el.readenByUsers.includes(userId)
               ? true
               : false,
-          recievers: el.recievers,
+          recievers: el.receivers,
           user: {
             id: el.user.id,
             fullName: el.user.fullName,

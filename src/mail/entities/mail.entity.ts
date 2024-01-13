@@ -35,5 +35,5 @@ export class Mail {
   user: User;
 
   @Column('integer', { array: true, nullable: true })
-  recievers: number[];
+  receivers: number[];
 }

@@ -5,7 +5,7 @@ export const PostMail = {
       theme: {
         type: 'string',
       },
-      recievers: {
+      receivers: {
         type: 'array',
         items: {
           type: 'number',
