@@ -12,14 +12,14 @@ export class AnswersService {
 
   async save(answers, questionId) {
     try {
-      answers.forEach(async (el) => {
+      await answers.forEach(async (el) => {
         const answer = {
           questions: questionId,
           text: el,
           count: 0,
         };
 
-        this.repository.save(answer);
+        await this.repository.save(answer);
       });
     } catch (error) {
       throw new ForbiddenException(error);

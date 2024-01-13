@@ -87,9 +87,9 @@ export class VotesService {
         photos: photosIds,
       };
 
-      const newVote = this.repository.create(voteData);
-      await this.questionsService.save(questions, newVote.id);
+      const newVote = await this.repository.create(voteData);
       await this.repository.save(newVote);
+      await this.questionsService.save(questions, newVote.id);
     } catch (error) {
       throw new ForbiddenException(error);
     }
@@ -152,6 +152,15 @@ export class VotesService {
         where: { id },
         relations: ['user', 'questions'],
       });
+
+      const author = {
+        id: vote.user.id,
+        email: vote.user.email,
+        fullName: vote.user.fullName,
+        phone: vote.user.phone,
+        photo: vote.user.photo,
+        telegram: vote.user.telegram,
+      };
 
       const questions = [...vote.questions];
 
@@ -228,6 +237,7 @@ export class VotesService {
         usersVoted: users,
         photos: photosIds,
         files: filesIds,
+        user: author,
       };
     } catch (error) {
       throw new ForbiddenException(error);
@@ -309,11 +319,15 @@ export class VotesService {
 
   async voting(id: number, userId: number, userAnswers: {}) {
     try {
-      const vote = await this.repository.findOne({ where: { id } });
+      const vote = await this.repository.findOne({
+        where: { id },
+        relations: ['questions'],
+      });
       let isUserVoted;
 
       for (const question of vote.questions) {
-        for (const answer of question.answers) {
+        const answers = await this.answersService.findById(question.id);
+        for (const answer of answers) {
           if (answer.users.includes(userId)) {
             answer.count--;
             isUserVoted = true;
@@ -338,7 +352,7 @@ export class VotesService {
       await this.repository.save(vote);
       return;
     } catch (error) {
-      throw new ForbiddenException(error);
+      return new ForbiddenException(error);
     }
   }
 

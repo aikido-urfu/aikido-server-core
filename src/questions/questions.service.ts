@@ -43,10 +43,9 @@ export class QuestionsService {
           isMultiply: el.isMultiply,
         };
 
-        const newQuestion = this.repository.create(question);
-
-        await this.answersService.save(el.answers, newQuestion.id);
+        const newQuestion = await this.repository.create(question);
         await this.repository.save(newQuestion);
+        await this.answersService.save(el.answers, newQuestion.id);
       });
     } catch (error) {
       throw new ForbiddenException(error);
