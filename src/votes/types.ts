@@ -404,9 +404,9 @@ export const PatchVote = {
   schema: {
     type: 'object',
     default: {
-      457: 4146,
-      458: 4189,
-      459: 1441,
+      458: [4189],
+      457: [4146],
+      459: [1441],
     },
   },
 };

@@ -76,12 +76,6 @@ export class VotesService {
       const result = [];
 
       for (const el of votes) {
-        const photos = [];
-
-        for (const photo of el.photos) {
-          const getPhoto = await this.filesService.getById(photo);
-          photos.push(getPhoto);
-        }
         result.push({
           id: el.id,
           title: el.title,
@@ -93,7 +87,7 @@ export class VotesService {
           isActive: el.isActive,
           isPrivate: el.isPrivate,
           privateUsers: el.privateUsers,
-          photos,
+          photos: el.photos,
         });
       }
 
@@ -137,20 +131,6 @@ export class VotesService {
       const questions = [...vote.questions];
 
       for (const question of questions) {
-        const photos = [];
-        const files = [];
-
-        for (const photo of question.photos) {
-          photos.push(await this.filesService.getById(photo));
-        }
-
-        for (const file of question.files) {
-          files.push(await this.filesService.getById(file));
-        }
-
-        question.files = files;
-        question.photos = photos;
-
         const answers = await this.answersService.findById(question.id);
         question.answers = [];
 
@@ -191,24 +171,11 @@ export class VotesService {
 
       const isVoted = vote.usersVoted.includes(userId);
 
-      const photosIds = [];
-      const filesIds = [];
-
-      for (const photo of vote.photos) {
-        photosIds.push(await this.filesService.getById(photo));
-      }
-
-      for (const file of vote.files) {
-        filesIds.push(await this.filesService.getById(file));
-      }
-
       return {
         ...vote,
         isAdmin,
         isVoted,
         usersVoted: users,
-        photos: photosIds,
-        files: filesIds,
         user: author,
       };
     } catch (error) {
@@ -261,16 +228,18 @@ export class VotesService {
     }
   }
 
-  async voting(id: number, userId: number, userAnswers: {}) {
+  async voting(id: number, userId: number, userAnswers: { kek: number[] }) {
     try {
       const vote = await this.repository.findOne({
         where: { id },
         relations: ['questions'],
       });
 
-      for (const answer of Object.values(userAnswers)) {
-        await this.answersService.unvoting(answer, userId);
-        await this.answersService.voting(answer, userId);
+      for (const questionAnswers of Object.values(userAnswers)) {
+        for (const answer of questionAnswers) {
+          await this.answersService.unvoting(answer, userId);
+          await this.answersService.voting(answer, userId);
+        }
       }
 
       if (!Array.isArray(vote.usersVoted)) {

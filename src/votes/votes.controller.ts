@@ -52,7 +52,11 @@ export class VotesController {
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBody(PatchVote)
-  vote(@Param('id') id: string, @UserId() userId, @Body() userAnswers: {}) {
+  vote(
+    @Param('id') id: string,
+    @UserId() userId,
+    @Body() userAnswers: { kek: number[] },
+  ) {
     return this.votesService.voting(+id, userId, userAnswers);
   }
 
