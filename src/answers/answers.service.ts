@@ -56,30 +56,38 @@ export class AnswersService {
 
   async voting(id, userId) {
     try {
-      const answer = await this.repository.findOneBy(id);
+      const answer = await this.repository.findOneBy({ id });
+
+      if (!answer.users.includes(userId)) {
+        answer.users.push(userId);
+      }
 
       answer.count++;
 
-      answer.users.push(userId);
+      console.log(answer);
 
       await this.repository.save(answer);
       return;
     } catch (error) {
+      console.log(error);
       throw new ForbiddenException(error);
     }
   }
 
   async unvoting(id, userId) {
     try {
-      const answer = await this.repository.findOneBy(id);
+      const answer = await this.repository.findOneBy({ id });
 
-      answer.count++;
+      if (answer.users.includes(userId)) {
+        answer.count--;
+      }
 
-      answer.users.push(userId);
+      console.log(answer);
 
       await this.repository.save(answer);
       return;
     } catch (error) {
+      console.log(error);
       throw new ForbiddenException(error);
     }
   }

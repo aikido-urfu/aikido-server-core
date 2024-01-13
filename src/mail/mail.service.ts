@@ -66,7 +66,7 @@ export class MailService {
           id: el.id,
           theme: el.theme,
           text: el.text,
-          date: Date.now() + '',
+          date: el.date,
           photos: el.photos,
           files: el.files,
           isReaden:

@@ -323,34 +323,19 @@ export class VotesService {
         where: { id },
         relations: ['questions'],
       });
-      let isUserVoted;
 
-      for (const question of vote.questions) {
-        const answers = await this.answersService.findById(question.id);
-        for (const answer of answers) {
-          if (answer.users.includes(userId)) {
-            answer.count--;
-            isUserVoted = true;
-          }
-        }
+      for (const answer of Object.values(userAnswers)) {
+        await this.answersService.unvoting(answer, userId);
+        await this.answersService.voting(answer, userId);
       }
 
-      await Object.values(userAnswers).forEach((value) => {
-        if (Array.isArray(value)) {
-          for (const answer of value) {
-            this.answersService.voting(answer, userId);
-          }
-        } else {
-          this.answersService.voting(value, userId);
-        }
-      });
-
-      if (!isUserVoted) {
-        vote.usersVoted.push(userId);
+      if (!Array.isArray(vote.usersVoted)) {
+        vote.usersVoted = [];
       }
 
-      await this.repository.save(vote);
-      return;
+      vote.usersVoted.push(userId);
+
+      this.repository.save(vote);
     } catch (error) {
       return new ForbiddenException(error);
     }
