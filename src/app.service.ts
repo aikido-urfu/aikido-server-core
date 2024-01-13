@@ -8,7 +8,7 @@ export class AppService {
   }
 
   getFile(id: string) {
-    const imagePath = path.join(__dirname, '../..', 'uploads', id);
+    const imagePath = path.join(__dirname, '../../..', 'uploads', id);
     return imagePath;
   }
 }

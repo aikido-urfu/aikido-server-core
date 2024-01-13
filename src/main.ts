@@ -7,7 +7,7 @@ import * as serveStatic from 'serve-static';
 
 async function bootstrap() {
   const server = express();
-  server.use('/uploads', serveStatic(join(__dirname, '..', 'uploads'))); // Указывает папку с файлами
+  server.use('/uploads', serveStatic(join(__dirname, '../..', 'uploads'))); // Указывает папку с файлами
 
   const app = await NestFactory.create(AppModule);
 

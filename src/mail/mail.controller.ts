@@ -10,7 +10,7 @@ import {
 import { MailService } from './mail.service';
 import { CreateMailDto } from './dto/create-mail.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GetMail, PostMail } from './types';
+import { GetMailDto, PostMail } from './types';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UserId } from 'src/decorators/user-id.decorator';
 
@@ -29,7 +29,7 @@ export class MailController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  @ApiResponse(GetMail)
+  @ApiResponse({ type: GetMailDto })
   findAll(@UserId() userId) {
     return this.mailService.findAll(userId);
   }
