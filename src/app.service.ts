@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { API_URL } from 'API_URL';
 import * as path from 'path';
 
 @Injectable()

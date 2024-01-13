@@ -6,7 +6,6 @@ import {
   UseGuards,
   Put,
   Param,
-  Injectable,
 } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { CreateMailDto } from './dto/create-mail.dto';

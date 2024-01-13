@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   Patch,
-  UploadedFile,
 } from '@nestjs/common';
 import { VotesService } from './votes.service';
 import { CreateVoteDto } from './dto/create-vote.dto';
@@ -17,7 +16,6 @@ import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { PostVote, GetVotes, GetVote, PatchVote } from './types';
 import { UserId } from 'src/decorators/user-id.decorator';
-import { Multer } from 'multer';
 
 @Controller('votes')
 @ApiTags('votes')

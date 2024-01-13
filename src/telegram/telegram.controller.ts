@@ -1,15 +1,6 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { TelegramService } from './telegram.service';
 import { CreateTelegramDto } from './dto/create-telegram.dto';
-import { UpdateTelegramDto } from './dto/update-telegram.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Mail, Start, TelegramId, Votes } from './types';
 

@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToMany,
-  JoinTable,
 } from 'typeorm';
 import { Vote } from '../../votes/entities/vote.entity';
 import { Mail } from 'src/mail/entities/mail.entity';

@@ -6,7 +6,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { RsaService } from 'src/tools/RSA';
 import { CreateUserDto, LoginUserDto } from 'src/users/dto/create-user.dto';
-import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
