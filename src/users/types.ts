@@ -18,18 +18,7 @@ export const UpdateUser = {
         type: 'string',
       },
       photo: {
-        type: 'object',
-        properties: {
-          file: {
-            type: 'string',
-          },
-          name: {
-            type: 'string',
-          },
-          type: {
-            type: 'string',
-          },
-        },
+        type: 'string',
       },
     },
   },

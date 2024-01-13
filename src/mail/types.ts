@@ -17,34 +17,14 @@ export const PostMail = {
       files: {
         type: 'array',
         items: {
-          type: 'object',
-          properties: {
-            file: {
-              type: 'string',
-            },
-            name: {
-              type: 'string',
-            },
-            type: {
-              type: 'string',
-            },
-          },
+          type: 'string',
         },
       },
       photos: {
         type: 'array',
         items: {
-          type: 'object',
-          properties: {
-            file: {
-              type: 'string',
-            },
-            name: {
-              type: 'string',
-            },
-            type: {
-              type: 'string',
-            },
+          items: {
+            type: 'string',
           },
         },
       },

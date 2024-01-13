@@ -313,18 +313,7 @@ export const PostVote = {
       files: {
         type: 'array',
         items: {
-          type: 'object',
-          properties: {
-            file: {
-              type: 'string',
-            },
-            name: {
-              type: 'string',
-            },
-            type: {
-              type: 'string',
-            },
-          },
+          type: 'string',
         },
       },
       photos: {

@@ -16,30 +16,12 @@ export class QuestionsService {
   async save(questions, voteId) {
     try {
       questions.forEach(async (el: Questions) => {
-        const filesIds = [];
-
-        if (el.files && el.files.length) {
-          for (const file of el.files) {
-            const savedFile = await saveFile(file);
-            filesIds.push(savedFile);
-          }
-        }
-
-        const photosIds = [];
-
-        if (el.photos && el.photos.length) {
-          for (const photo of el.photos) {
-            const savedPhoto = await saveFile(photo);
-            photosIds.push(savedPhoto);
-          }
-        }
-
         const question = {
           vote: voteId,
           title: el.title,
           description: el.description,
-          files: filesIds,
-          photos: photosIds,
+          files: el.files,
+          photos: el.photos,
           isMultiply: el.isMultiply,
         };
 

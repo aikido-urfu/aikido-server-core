@@ -15,23 +15,6 @@ export class MailService {
   async create(userId, createMailDto: CreateMailDto) {
     try {
       const { theme, receivers, text, files, photos } = createMailDto;
-      const filesIds = [];
-
-      if (files && files.length) {
-        for (const file of files) {
-          const savedFile = await saveFile(file);
-          filesIds.push(savedFile);
-        }
-      }
-
-      const photosIds = [];
-
-      if (photos && photos.length) {
-        for (const photo of photos) {
-          const savedPhoto = await saveFile(photo);
-          photosIds.push(savedPhoto);
-        }
-      }
 
       const mailData = {
         user: userId,
@@ -39,8 +22,8 @@ export class MailService {
         receivers,
         text,
         date: new Date().toISOString(),
-        files: filesIds,
-        photos: photosIds,
+        files: photos,
+        photos: files,
         readenByUsers: [],
       };
 

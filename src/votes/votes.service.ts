@@ -43,34 +43,6 @@ export class VotesService {
         throw new ForbiddenException('Отсутсвуют необходимые поля');
       }
 
-      const filesIds = [];
-
-      if (files && files.length) {
-        for (const file of files) {
-          const savedFile = await saveFile(file.file);
-          this.filesService.saveFile({
-            id: savedFile,
-            name: file.name,
-            type: file.type,
-          });
-          filesIds.push(savedFile);
-        }
-      }
-
-      const photosIds = [];
-
-      if (photos && photos.length) {
-        for (const photo of photos) {
-          const savedPhoto = await saveFile(photo);
-          this.filesService.saveFile({
-            id: savedPhoto,
-            name: photo.name,
-            type: photo.type,
-          });
-          photosIds.push(savedPhoto);
-        }
-      }
-
       const voteData = {
         user: userId as DeepPartial<User>,
         title,
@@ -83,8 +55,8 @@ export class VotesService {
         isAnonymous: isAnonymous ?? true,
         isHidenCount: isHidenCount ?? false,
         privateUsers,
-        files: filesIds,
-        photos: photosIds,
+        files,
+        photos,
       };
 
       const newVote = await this.repository.create(voteData);
@@ -264,34 +236,6 @@ export class VotesService {
       throw new ForbiddenException('Отсутсвуют необходимые поля');
     }
 
-    const filesIds = [];
-
-    if (files && files.length) {
-      for (const file of files) {
-        const savedFile = await saveFile(file);
-        this.filesService.saveFile({
-          id: savedFile,
-          name: file.name,
-          type: file.type,
-        });
-        filesIds.push(savedFile);
-      }
-    }
-
-    const photosIds = [];
-
-    if (photos && photos.length) {
-      for (const photo of photos) {
-        const savedPhoto = await saveFile(photo);
-        this.filesService.saveFile({
-          id: savedPhoto,
-          name: photo.name,
-          type: photo.type,
-        });
-        photosIds.push(savedPhoto);
-      }
-    }
-
     const voteData = {
       title,
       description,
@@ -303,8 +247,8 @@ export class VotesService {
       isAnonymous: isAnonymous ?? true,
       isHidenCount: isHidenCount ?? false,
       privateUsers,
-      files: filesIds,
-      photos: photosIds,
+      files,
+      photos,
     };
 
     try {

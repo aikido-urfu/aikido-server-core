@@ -103,7 +103,6 @@ export class UsersService {
       const newVote = await {
         ...oldVote,
         ...updateUserDto,
-        photo: await saveFile(oldVote.photo),
       };
 
       await this.repository.save(newVote);
