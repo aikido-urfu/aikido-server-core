@@ -204,6 +204,7 @@ export class VotesService {
           id: user.id,
           fullName: user.fullName,
           photo: user.photo,
+          email: user.emaiL,
         });
       }
 

@@ -47,6 +47,7 @@ export class UsersService {
         photo: user.photo,
         phone: user.phone,
         telegram: user.telegram,
+        emaiL: user.email,
       };
 
       return response;
@@ -83,6 +84,7 @@ export class UsersService {
           photo: user.photo,
           phone: user.phone,
           telegram: user.telegram,
+          email: user.email,
         });
       }
 

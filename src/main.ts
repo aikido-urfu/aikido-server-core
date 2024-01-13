@@ -4,10 +4,6 @@ import { AppModule } from './app.module';
 import * as express from 'express';
 import { join } from 'path';
 import * as serveStatic from 'serve-static';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import { createServer } from 'http';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import * as path from 'path';
 
 async function bootstrap() {
   const server = express();
