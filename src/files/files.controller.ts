@@ -11,7 +11,7 @@ import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/decorators/user-id.decorator';
 import Multer from 'multer';
 import { fileStorage } from 'src/tools/storage';
-import { API_URL } from 'API_URL';
+import { Files_URL } from 'API_URL';
 
 @Controller('files')
 export class FilesController {
@@ -39,7 +39,7 @@ export class FilesController {
     @UploadedFile(new ParseFilePipe({}))
     file: Multer.File,
   ) {
-    const url = API_URL + 'uploads/' + file.filename;
+    const url = Files_URL + 'uploads/' + file.filename;
 
     const savedFile = await this.fileService.saveFile({
       url,
@@ -72,7 +72,7 @@ export class FilesController {
     @UploadedFile(new ParseFilePipe({}))
     photo: Multer.File,
   ) {
-    const url = API_URL + 'uploads/' + photo.filename;
+    const url = Files_URL + 'uploads/' + photo.filename;
 
     return { url };
   }
