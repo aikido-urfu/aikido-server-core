@@ -17,6 +17,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     try {
       const newUser = await this.repository.create(createUserDto);
+      newUser.role = "user";
       await this.repository.save(newUser);
       return { id: newUser.id };
     } catch (error) {

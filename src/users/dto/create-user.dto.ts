@@ -15,11 +15,6 @@ export class CreateUserDto {
     type: 'string',
   })
   password: string;
-
-  @ApiProperty({
-    type: 'string',
-  })
-  role: string = "user";
 }
 
 export class LoginUserDto {
