@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { saveFile } from 'src/tools/saveFile';
+import { use } from 'passport';
 
 @Injectable()
 export class UsersService {
@@ -42,10 +43,10 @@ export class UsersService {
       const response = {
         id: user.id,
         fullName: user.fullName,
+        group: user.group,
         photo: user.photo,
         phone: user.phone,
-        telegram: user.telegram,
-        emaiL: user.email,
+        emaiL: user.email
       };
 
       return response;
@@ -79,9 +80,9 @@ export class UsersService {
         await response.push({
           id: user.id,
           fullName: user.fullName,
+          group: user.group,
           photo: user.photo,
           phone: user.phone,
-          telegram: user.telegram,
           email: user.email,
         });
       }

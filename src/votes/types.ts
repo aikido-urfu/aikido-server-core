@@ -26,6 +26,9 @@ export const GetVote = {
           fullName: {
             type: 'string',
           },
+          role: {
+            type: 'string',
+          },
           phone: {
             type: 'string',
           },
@@ -66,19 +69,16 @@ export const GetVote = {
       description: {
         type: 'string',
       },
-      dateOfStart: {
+      startDate: {
         type: 'string',
       },
-      dateOfEnd: {
+      endDate: {
         type: 'string',
       },
       creationDate: {
         type: 'string',
       },
       isAnonymous: {
-        type: 'boolean',
-      },
-      isActive: {
         type: 'boolean',
       },
       isHidenCounter: {
@@ -246,9 +246,6 @@ export const GetVotes = {
             isAnonymous: {
               type: 'string',
             },
-            isActive: {
-              type: 'string',
-            },
             privateUsers: {
               type: 'array',
               items: {
@@ -289,16 +286,13 @@ export const PostVote = {
       description: {
         type: 'string',
       },
-      dateOfStart: {
+      startDate: {
         type: 'string',
       },
-      dateOfEnd: {
+      endDate: {
         type: 'string',
       },
       isAnonymous: {
-        type: 'boolean',
-      },
-      isActive: {
         type: 'boolean',
       },
       isHidenCounter: {

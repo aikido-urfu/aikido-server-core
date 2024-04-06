@@ -22,15 +22,17 @@ export class AuthService {
   async validateUserByRegister({
     email,
     password,
-    fullName,
+    fullName
+    // role
   }: {
     email: string;
     password: string;
     fullName: string;
+    // role: string;
   }): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
-    if (!email || !password || !fullName || user) {
+    if (!email || !password || !fullName || /*!role ||*/ user) {
       return false;
     }
 
@@ -40,7 +42,7 @@ export class AuthService {
   async register(dto: CreateUserDto) {
     try {
       if (!(await this.validateUserByRegister(dto))) {
-        throw new BadRequestException('Отсуствуют необходимые поля');
+        throw new BadRequestException('Некорректно заполнены поля');
       }
       const userData = await this.usersService.create(dto);
 
@@ -77,7 +79,7 @@ export class AuthService {
 
   async login(dto: LoginUserDto) {
     if (!(await this.validateUserByLogin(dto))) {
-      throw new BadRequestException('Не правильные логин или пароль');
+      throw new BadRequestException('Неправильные логин или пароль');
     }
     const { id } = await this.usersService.findByEmail(dto.email);
 

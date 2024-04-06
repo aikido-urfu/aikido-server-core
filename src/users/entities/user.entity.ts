@@ -22,7 +22,13 @@ export class User {
   @Column()
   fullName: string;
 
-  @OneToMany(() => Vote, (vote) => vote.user)
+  @Column()
+  role: string;
+
+  @Column({ nullable: true })
+  group: string;
+
+  @OneToMany(() => Vote, (vote) => vote.creator)
   votes: Vote[];
 
   @OneToMany(() => Mail, (mail) => mail.user)
@@ -36,9 +42,6 @@ export class User {
 
   @Column({ nullable: true })
   photo: string;
-
-  @Column({ nullable: true })
-  telegram: string;
 
   @Column({ nullable: true })
   telegramUserID: string;

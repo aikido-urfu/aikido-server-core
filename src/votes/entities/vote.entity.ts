@@ -20,25 +20,19 @@ export class Vote {
   description?: string;
 
   @Column({ nullable: true })
-  isActive?: boolean;
+  endDate?: string;
 
   @Column({ nullable: true })
-  dateOfEnd?: string;
-
-  @Column({ nullable: true })
-  dateOfStart?: string;
+  startDate?: string;
 
   @Column()
   creationDate: string;
 
   @Column()
-  isPrivate: boolean;
-
-  @Column()
   isAnonymous: boolean;
 
   @Column('integer', { array: true, nullable: true })
-  privateUsers?: number[];
+  respondents?: number[];
 
   @Column('text', { array: true, nullable: true })
   files?: number[];
@@ -47,7 +41,7 @@ export class Vote {
   photos?: string[];
 
   @ManyToOne(() => User, (user) => user.votes)
-  user: User;
+  creator: User;
 
   @Column('integer', { array: true, default: [] })
   usersVoted: number[];

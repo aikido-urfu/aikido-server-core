@@ -28,12 +28,10 @@ export class VotesService {
         title,
         isAnonymous,
         isHidenCount,
-        isPrivate,
         questions,
         description,
-        isActive,
-        dateOfStart,
-        dateOfEnd,
+        startDate,
+        endDate,
         privateUsers,
         files,
         photos,
@@ -47,11 +45,9 @@ export class VotesService {
         user: userId as DeepPartial<User>,
         title,
         description,
-        isActive: isActive ?? true,
-        dateOfStart,
-        dateOfEnd,
+        startDate,
+        endDate,
         creationDate: Date.now() + '',
-        isPrivate: isPrivate ?? false,
         isAnonymous: isAnonymous ?? true,
         isHidenCount: isHidenCount ?? false,
         privateUsers,
@@ -80,13 +76,11 @@ export class VotesService {
           id: el.id,
           title: el.title,
           description: el.description,
-          dateOfStart: el.dateOfStart,
-          dateOfEnd: el.dateOfEnd,
+          startDate: el.startDate,
+          endDate: el.endDate,
           creationDate: el.creationDate,
           isAnonymous: el.isAnonymous,
-          isActive: el.isActive,
-          isPrivate: el.isPrivate,
-          privateUsers: el.privateUsers,
+          privateUsers: el.respondents,
           photos: el.photos,
         });
       }
@@ -101,7 +95,7 @@ export class VotesService {
     try {
       const votes = await this.repository.find({
         where: {
-          user: { id: userId },
+          creator: { id: userId },
         },
         relations: ['user'], // Загрузка информации пользователя вместе с голосами, если это требуется
       });
@@ -126,12 +120,11 @@ export class VotesService {
       }
 
       const author = {
-        id: vote.user.id,
-        email: vote.user.email,
-        fullName: vote.user.fullName,
-        phone: vote.user.phone,
-        photo: vote.user.photo,
-        telegram: vote.user.telegram,
+        id: vote.creator.id,
+        email: vote.creator.email,
+        fullName: vote.creator.fullName,
+        phone: vote.creator.phone,
+        photo: vote.creator.photo,
       };
 
       const questions = [...vote.questions];
@@ -168,7 +161,7 @@ export class VotesService {
 
       vote.questions = [...questions];
 
-      const isAdmin = userId === vote.user.id ? 'admin' : 'user';
+      const isAdmin = userId === vote.creator.id ? 'admin' : 'user';
 
       const users = [];
       for (const id of vote.usersVoted) {
@@ -201,12 +194,10 @@ export class VotesService {
       title,
       isAnonymous,
       isHidenCount,
-      isPrivate,
       questions,
       description,
-      isActive,
-      dateOfStart,
-      dateOfEnd,
+      startDate,
+      endDate,
       privateUsers,
       files,
       photos,
@@ -219,11 +210,9 @@ export class VotesService {
     const voteData = {
       title,
       description,
-      isActive: isActive ?? true,
-      dateOfStart,
-      dateOfEnd,
+      startDate,
+      endDate,
       creationDate: Date.now() + '',
-      isPrivate: isPrivate ?? false,
       isAnonymous: isAnonymous ?? true,
       isHidenCount: isHidenCount ?? false,
       privateUsers,
@@ -274,7 +263,7 @@ export class VotesService {
         relations: ['user'],
       });
 
-      if (Number(vote.user.id) !== userId) {
+      if (Number(vote.creator.id) !== userId) {
         throw new ForbiddenException('Недостаточно прав');
       }
 
