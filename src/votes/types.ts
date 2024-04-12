@@ -70,13 +70,13 @@ export const GetVote = {
         type: 'string',
       },
       startDate: {
-        type: 'string',
+        type: 'Date',
       },
       endDate: {
-        type: 'string',
+        type: 'Date',
       },
       creationDate: {
-        type: 'string',
+        type: 'Date',
       },
       isAnonymous: {
         type: 'boolean',
@@ -84,7 +84,7 @@ export const GetVote = {
       isHidenCounter: {
         type: 'boolean',
       },
-      privateUsers: {
+      respondents: {
         type: 'array',
         items: {
           type: 'number',
@@ -246,7 +246,7 @@ export const GetVotes = {
             isAnonymous: {
               type: 'string',
             },
-            privateUsers: {
+            respondents: {
               type: 'array',
               items: {
                 type: 'number',
@@ -287,10 +287,10 @@ export const PostVote = {
         type: 'string',
       },
       startDate: {
-        type: 'string',
+        type: 'Date',
       },
       endDate: {
-        type: 'string',
+        type: 'Date',
       },
       isAnonymous: {
         type: 'boolean',
@@ -298,7 +298,7 @@ export const PostVote = {
       isHidenCounter: {
         type: 'boolean',
       },
-      privateUsers: {
+      respondents: {
         type: 'array',
         items: {
           type: 'number',

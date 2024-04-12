@@ -2,6 +2,7 @@ import { Questions } from 'src/questions/entities/questions.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -20,13 +21,13 @@ export class Vote {
   description?: string;
 
   @Column({ nullable: true })
-  endDate?: string;
+  endDate?: Date;
 
   @Column({ nullable: true })
-  startDate?: string;
+  startDate?: Date;
 
   @Column()
-  creationDate: string;
+  creationDate: Date;
 
   @Column()
   isAnonymous: boolean;

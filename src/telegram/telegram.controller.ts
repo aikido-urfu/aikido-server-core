@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { TelegramService } from './telegram.service';
 import { CreateTelegramDto } from './dto/create-telegram.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Mail, Start, TelegramId, Votes } from './types';
+import { Start, TelegramId, Votes } from './types';
 
 @Controller('telegram')
 @ApiTags('telegram')
@@ -21,13 +21,6 @@ export class TelegramController {
   @ApiResponse(Votes)
   findAll(@Body() body: { tgid: string }) {
     return this.telegramService.findAll(body.tgid);
-  }
-
-  @Get('/mail')
-  @ApiBody(TelegramId)
-  @ApiResponse(Mail)
-  findMail(@Body() body: { tgid: string }) {
-    return this.telegramService.findMail(body.tgid);
   }
 
   @Delete('/unsubscribe')

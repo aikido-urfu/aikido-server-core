@@ -32,7 +32,7 @@ export class VotesService {
         description,
         startDate,
         endDate,
-        privateUsers,
+        respondents,
         files,
         photos,
       } = createVoteDto;
@@ -42,18 +42,22 @@ export class VotesService {
       }
 
       const voteData = {
-        user: userId as DeepPartial<User>,
+        creator: userId as DeepPartial<User>,
         title,
         description,
-        startDate,
-        endDate,
-        creationDate: Date.now() + '',
+        startDate: startDate ? new Date(startDate) : startDate,
+        endDate: endDate ? new Date(endDate) : endDate,
+        creationDate: new Date(),
         isAnonymous: isAnonymous ?? true,
         isHidenCount: isHidenCount ?? false,
-        privateUsers,
+        respondents,
         files,
         photos,
       };
+
+      if (startDate >= endDate || voteData.creationDate > endDate || voteData.creationDate > endDate) {
+        throw new ForbiddenException('Неверно указаны даты конца и начала голосования');
+      }
 
       const newVote = await this.repository.create(voteData);
       await this.repository.save(newVote);
@@ -66,7 +70,7 @@ export class VotesService {
   async findAll() {
     try {
       const votes = await this.repository.find({
-        relations: ['user'],
+        relations: ['creator'],
       });
 
       const result = [];
@@ -80,18 +84,34 @@ export class VotesService {
           endDate: el.endDate,
           creationDate: el.creationDate,
           isAnonymous: el.isAnonymous,
-          privateUsers: el.respondents,
+          respondents: el.respondents,
           photos: el.photos,
         });
       }
 
       return { votes: result };
     } catch (error) {
+      console.log(error);
       throw new ForbiddenException(error);
     }
   }
 
   async findMy(userId: number) {
+    try {
+      const votes = await this.repository.find({
+        where: {
+          creator: { id: userId },
+        },
+        relations: ['user'], // Загрузка информации пользователя вместе с голосами, если это требуется
+      });
+
+      return votes;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
+  async findCreatedByMe(userId: number) {
     try {
       const votes = await this.repository.find({
         where: {
@@ -198,7 +218,7 @@ export class VotesService {
       description,
       startDate,
       endDate,
-      privateUsers,
+      respondents,
       files,
       photos,
     } = updateVoteDto;
@@ -212,10 +232,10 @@ export class VotesService {
       description,
       startDate,
       endDate,
-      creationDate: Date.now() + '',
+      // creationDate: Date.now() + '',
       isAnonymous: isAnonymous ?? true,
       isHidenCount: isHidenCount ?? false,
-      privateUsers,
+      respondents,
       files,
       photos,
     };
@@ -236,6 +256,12 @@ export class VotesService {
         where: { id },
         relations: ['questions'],
       });
+
+      const now = new Date();
+
+      if (vote.endDate && vote.startDate && vote.endDate > now && now > vote.startDate) {
+        throw new ForbiddenException("Время на голосование истекло");
+      }
 
       for (const questionAnswers of Object.values(userAnswers)) {
         for (const answer of questionAnswers) {

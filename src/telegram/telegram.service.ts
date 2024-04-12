@@ -4,14 +4,12 @@ import { UpdateTelegramDto } from './dto/update-telegram.dto';
 import { UsersService } from 'src/users/users.service';
 import { VotesService } from 'src/votes/votes.service';
 import { Frontend_URL } from 'API_URL';
-import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class TelegramService {
   constructor(
     private usersService: UsersService,
     private votesService: VotesService,
-    private mailService: MailService,
   ) {}
   create(createTelegramDto: CreateTelegramDto) {
     return 'This action adds a new telegram';
@@ -20,34 +18,13 @@ export class TelegramService {
   async findAll(tgid: string) {
     try {
       const userId = await this.usersService.findByTgid(tgid);
-      const votes = await this.votesService.findMy(userId);
+      const votes = await this.votesService.findCreatedByMe(userId);
       const response = [];
 
       for (const vote of votes) {
         response.push({
           text: vote.description,
           url: Frontend_URL + 'vote/' + vote.id,
-        });
-      }
-
-      return response;
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
-  }
-
-  async findMail(tgid: string) {
-    try {
-      const userId = await this.usersService.findByTgid(tgid);
-      const mails = await this.mailService.findAll(userId);
-      const response = [];
-
-      for (const mail of mails) {
-        const author = await this.usersService.findById(mail.user.id);
-        response.push({
-          sender: author.fullName,
-          text: mail.text,
-          date: mail.date,
         });
       }
 

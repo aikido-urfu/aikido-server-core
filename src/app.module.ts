@@ -11,8 +11,6 @@ import { Vote } from './votes/entities/vote.entity';
 import { Questions } from './questions/entities/questions.entity';
 import { Answers } from './answers/entities/answers.entity';
 import { TelegramModule } from './telegram/telegram.module';
-import { MailModule } from './mail/mail.module';
-import { Mail } from './mail/entities/mail.entity';
 import { FilesModule } from './files/files.module';
 import { Files } from './files/entities/files.entity';
 
@@ -20,7 +18,6 @@ import { Files } from './files/entities/files.entity';
   imports: [
     ConfigModule.forRoot(),
     UsersModule,
-    MailModule,
     VotesModule,
     AuthModule,
     FilesModule,
@@ -31,7 +28,7 @@ import { Files } from './files/entities/files.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Vote, Questions, Answers, Mail, Files],
+      entities: [User, Vote, Questions, Answers, Files],
       synchronize: true,
     }),
     TelegramModule,

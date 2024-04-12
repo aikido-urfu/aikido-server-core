@@ -6,7 +6,6 @@ import {
   ManyToMany,
 } from 'typeorm';
 import { Vote } from '../../votes/entities/vote.entity';
-import { Mail } from 'src/mail/entities/mail.entity';
 
 @Entity('users')
 export class User {
@@ -26,13 +25,10 @@ export class User {
   role: string;
 
   @Column({ nullable: true })
-  group: string;
+  group?: string;
 
   @OneToMany(() => Vote, (vote) => vote.creator)
   votes: Vote[];
-
-  @OneToMany(() => Mail, (mail) => mail.user)
-  mailsSended: Mail[];
 
   @ManyToMany(() => Vote, (vote) => vote.usersVoted)
   voted: Vote[];

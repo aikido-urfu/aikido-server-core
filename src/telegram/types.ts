@@ -44,28 +44,3 @@ export const Start = {
     },
   },
 };
-
-export const Mail = {
-  schema: {
-    type: 'object',
-    properties: {
-      votes: {
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            sender: {
-              type: 'string',
-            },
-            text: {
-              type: 'string',
-            },
-            date: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    },
-  },
-};

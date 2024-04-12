@@ -1,11 +1,11 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { saveFile } from 'src/tools/saveFile';
-import { use } from 'passport';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -52,7 +52,7 @@ export class UsersService {
 
       return response;
     } catch (error) {
-      throw new ForbiddenException(error);
+      throw new NotFoundException(error);
     }
   }
 

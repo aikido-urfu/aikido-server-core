@@ -36,6 +36,12 @@ export class VotesController {
     return this.votesService.findAll();
   }
 
+  // @Get()
+  // @ApiResponse(GetVotes)
+  // findMy() {
+  //   return this.votesService.findMy();
+  // }
+
   @Get(':id')
   @ApiResponse(GetVote)
   findOne(@Param('id') id: string, @UserId() userId) {

@@ -1,11 +1,11 @@
 export class CreateVoteDto {
   title: string;
   description?: string;
-  startDate?: string;
-  endDate?: string;
+  startDate?: Date;
+  endDate?: Date;
   isAnonymous: boolean;
   isHidenCount: boolean;
-  privateUsers?: number[];
+  respondents?: number[];
   files?: number[];
   photos?: string[];
   questions: {
