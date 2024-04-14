@@ -96,20 +96,20 @@ export class VotesService {
     }
   }
 
-  async findMy(userId: number) {
-    try {
-      const votes = await this.repository.find({
-        where: {
-          creator: { id: userId },
-        },
-        relations: ['user'], // Загрузка информации пользователя вместе с голосами, если это требуется
-      });
+  // async findMy(userId: number) {
+  //   try {
+  //     const votes = await this.repository.find({
+  //       where: {
+  //         creator: { id: userId },
+  //       },
+  //       relations: ['user'], // Загрузка информации пользователя вместе с голосами, если это требуется
+  //     });
 
-      return votes;
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
-  }
+  //     return votes;
+  //   } catch (error) {
+  //     throw new ForbiddenException(error);
+  //   }
+  // }
 
   async findCreatedByMe(userId: number) {
     try {
@@ -130,7 +130,7 @@ export class VotesService {
     try {
       const vote = await this.repository.findOne({
         where: { id },
-        relations: ['user', 'questions'],
+        relations: ['creator', 'questions'],
       });
 
       const voteFiles = [];

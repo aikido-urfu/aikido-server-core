@@ -2,7 +2,6 @@ import { Questions } from 'src/questions/entities/questions.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -20,13 +19,13 @@ export class Vote {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   endDate?: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   startDate?: Date;
 
-  @Column()
+  @Column({ type: 'timestamptz' })
   creationDate: Date;
 
   @Column()
