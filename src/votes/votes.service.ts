@@ -55,9 +55,13 @@ export class VotesService {
         photos,
       };
 
-      if (startDate >= endDate || voteData.creationDate > endDate || voteData.creationDate > endDate) {
+      const startDateNew = voteData.startDate;
+      const endDateNew = voteData.endDate;
+
+      if (!startDateNew || !endDateNew || startDateNew >= endDateNew || 
+        voteData.creationDate > endDateNew || voteData.creationDate > startDateNew) {
         throw new ForbiddenException('Неверно указаны даты конца и начала голосования');
-      }
+      } 
 
       const newVote = await this.repository.create(voteData);
       await this.repository.save(newVote);
@@ -117,7 +121,7 @@ export class VotesService {
         where: {
           creator: { id: userId },
         },
-        relations: ['user'], // Загрузка информации пользователя вместе с голосами, если это требуется
+        relations: ['creator'], // Загрузка информации пользователя вместе с голосами, если это требуется
       });
 
       return votes;
@@ -232,7 +236,6 @@ export class VotesService {
       description,
       startDate,
       endDate,
-      // creationDate: Date.now() + '',
       isAnonymous: isAnonymous ?? true,
       isHidenCount: isHidenCount ?? false,
       respondents,
@@ -259,7 +262,7 @@ export class VotesService {
 
       const now = new Date();
 
-      if (vote.endDate && vote.startDate && vote.endDate > now && now > vote.startDate) {
+      if (vote.endDate && vote.startDate && (vote.endDate < now || now < vote.startDate)) {
         throw new ForbiddenException("Время на голосование истекло");
       }
 

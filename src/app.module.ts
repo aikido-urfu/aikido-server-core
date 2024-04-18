@@ -13,6 +13,8 @@ import { Answers } from './answers/entities/answers.entity';
 import { TelegramModule } from './telegram/telegram.module';
 import { FilesModule } from './files/files.module';
 import { Files } from './files/entities/files.entity';
+import { GroupsModule } from './groups/groups.module';
+import { Group } from './groups/entities/group.entity';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { Files } from './files/entities/files.entity';
     VotesModule,
     AuthModule,
     FilesModule,
+    TelegramModule,
+    GroupsModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -28,10 +32,9 @@ import { Files } from './files/entities/files.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Vote, Questions, Answers, Files],
+      entities: [User, Vote, Questions, Answers, Files, Group],
       synchronize: true,
     }),
-    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -113,7 +113,15 @@ export class UsersService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  // remove(id: number) {
+  //   return `This action removes a #${id} user`;
+  // }
+
+  changeGroup(userId: number, groupId: number) {
+    try {
+      
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 }
