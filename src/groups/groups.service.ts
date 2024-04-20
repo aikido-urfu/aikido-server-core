@@ -66,11 +66,30 @@ export class GroupsService {
     }
   }
 
+  async addUser(groupId: number, userId: number) {
+    try {
+      const group = await this.repository.findOne({
+        where: {
+           id: groupId 
+          },
+        relations: ['users'],
+      });
+
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
   update(id: number, updateGroupDto: UpdateGroupDto) {
     return `This action updates a #${id} group`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} group`;
+  async remove(id: number) {
+    try {
+      await this.repository.delete(id);
+      return;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 }

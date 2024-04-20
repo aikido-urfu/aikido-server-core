@@ -80,7 +80,7 @@ export class VotesService {
       const result = [];
 
       for (const el of votes) {
-        result.push({
+        result.unshift({
           id: el.id,
           title: el.title,
           description: el.description,

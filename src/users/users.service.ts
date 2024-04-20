@@ -2,16 +2,19 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { saveFile } from 'src/tools/saveFile';
 import { NotFoundError } from 'rxjs';
+import { GroupsService } from '../groups/groups.service';
+import { Group } from 'src/groups/entities/group.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private repository: Repository<User>,
+    // private groupsService: GroupsService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -113,13 +116,19 @@ export class UsersService {
     }
   }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
+  remove(id: number) {
+    return `This action removes a #${id} user`;
+  }
 
-  changeGroup(userId: number, groupId: number) {
+  async changeGroup(userId: number, groupId: number) {
     try {
-      
+      const user = await this.repository.findOneBy({
+        id: userId,
+      });
+
+      const newGroup = { group: groupId as DeepPartial<Group> }
+      const newUser = { ...user, ...newGroup };
+      await this.repository.save(newUser);
     } catch (error) {
       throw new ForbiddenException(error);
     }
