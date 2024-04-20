@@ -19,11 +19,11 @@ export class Vote {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ type: 'timestamptz', nullable: true })
-  endDate?: Date;
+  @Column({ type: 'timestamptz'})
+  endDate: Date;
 
-  @Column({ type: 'timestamptz', nullable: true })
-  startDate?: Date;
+  @Column({ type: 'timestamptz'})
+  startDate: Date;
 
   @Column({ type: 'timestamptz' })
   creationDate: Date;

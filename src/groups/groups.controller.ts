@@ -16,7 +16,7 @@ export class GroupsController {
 
   @Get()
   findAll() {
-    return this.groupsService.findAllWithoutUsers();
+    return this.groupsService.findAll();
   }
 
   @Get(':id')

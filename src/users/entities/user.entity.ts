@@ -4,8 +4,10 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   ManyToMany,
+  ManyToOne,
 } from 'typeorm';
 import { Vote } from '../../votes/entities/vote.entity';
+import { Group } from 'src/groups/entities/group.entity';
 
 @Entity('users')
 export class User {
@@ -24,8 +26,8 @@ export class User {
   @Column()
   role: string;
 
-  @Column({ nullable: true })
-  group?: string;
+  @ManyToOne(() => Group, (group) => group.users)
+  group?: Group;
 
   @OneToMany(() => Vote, (vote) => vote.creator)
   votes: Vote[];

@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -262,8 +262,13 @@ export class VotesService {
 
       const now = new Date();
 
-      if (vote.endDate && vote.startDate && (vote.endDate < now || now < vote.startDate)) {
-        throw new ForbiddenException("Время на голосование истекло");
+      if (vote.endDate && vote.startDate) {
+        if (vote.endDate < now) {
+          throw new ForbiddenException("Время на голосование истекло");
+        }
+        else if (now < vote.startDate) {
+          throw new ForbiddenException("Голосование не началось");
+        }
       }
 
       for (const questionAnswers of Object.values(userAnswers)) {
@@ -281,7 +286,7 @@ export class VotesService {
 
       this.repository.save(vote);
     } catch (error) {
-      return new ForbiddenException(error);
+      throw new BadRequestException(error);
     }
   }
 

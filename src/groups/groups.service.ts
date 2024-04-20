@@ -4,12 +4,14 @@ import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Group } from './entities/group.entity';
 import { Repository } from 'typeorm';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class GroupsService {
   constructor(
     @InjectRepository(Group)
     private repository: Repository<Group>,
+    // private usersService: UsersService,
   ) {}
 
   async create(createGroupDto: CreateGroupDto) {
@@ -22,18 +24,19 @@ export class GroupsService {
     }
   }
 
-  async findAllWithoutUsers() {
+  async findAll() {
     try {
       const groups = await this.repository.find({
-        relations: ['users']
+        relations: ['users'],
       });
-      
+
       const response = [];
 
       for (const group of groups) {
-        await response.push({
+        response.push({
           id: group.id,
           name: group.name,
+          users: group.users,
         });
       }
       return { groups: response };
@@ -42,8 +45,25 @@ export class GroupsService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} group`;
+  async findOne(id: number) {
+    try {
+      const group = await this.repository.findOne({
+        where: { id },
+        relations: ['users'],
+      });
+
+      const response = [];
+
+      response.push({
+        id: group.id,
+        name: group.name,
+        users: group.users,
+      });
+
+      return { groups: response };
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   update(id: number, updateGroupDto: UpdateGroupDto) {
