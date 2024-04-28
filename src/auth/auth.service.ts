@@ -22,13 +22,13 @@ export class AuthService {
   async validateUserByRegister({
     email,
     password,
-    fullName
-    // role
+    fullName,
+    role
   }: {
     email: string;
     password: string;
     fullName: string;
-    // role: string;
+    role: string;
   }): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 

@@ -4,7 +4,6 @@ import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Group } from './entities/group.entity';
 import { Repository } from 'typeorm';
-import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class GroupsService {
@@ -61,20 +60,6 @@ export class GroupsService {
       });
 
       return { groups: response };
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
-  }
-
-  async addUser(groupId: number, userId: number) {
-    try {
-      const group = await this.repository.findOne({
-        where: {
-           id: groupId 
-          },
-        relations: ['users'],
-      });
-
     } catch (error) {
       throw new ForbiddenException(error);
     }

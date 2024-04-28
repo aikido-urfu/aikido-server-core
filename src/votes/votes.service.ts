@@ -41,6 +41,20 @@ export class VotesService {
         throw new ForbiddenException('Отсутсвуют необходимые поля');
       }
 
+      let usersResp = [];
+
+      for (let id of respondents) {
+        let foundUser = await this.usersService.findById(id);
+        // let foundUser = id as DeepPartial<User>;
+        if ((await this.usersService.findById(userId)).role < foundUser.role) {
+          throw new ForbiddenException(`Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`);
+        }
+        usersResp.push(foundUser);
+      }
+
+      console.log(userId as DeepPartial<User>);
+      console.log(respondents as DeepPartial<User>[]);
+
       const voteData = {
         creator: userId as DeepPartial<User>,
         title,
@@ -50,10 +64,11 @@ export class VotesService {
         creationDate: new Date(),
         isAnonymous: isAnonymous ?? true,
         isHidenCount: isHidenCount ?? false,
-        respondents,
+        respondents: usersResp,
         files,
         photos,
       };
+      console.log(voteData.creator);
 
       const startDateNew = voteData.startDate;
       const endDateNew = voteData.endDate;
@@ -134,7 +149,7 @@ export class VotesService {
     try {
       const vote = await this.repository.findOne({
         where: { id },
-        relations: ['creator', 'questions'],
+        relations: ['creator', 'questions', 'respondents'],
       });
 
       const voteFiles = [];
@@ -231,6 +246,12 @@ export class VotesService {
       throw new ForbiddenException('Отсутсвуют необходимые поля');
     }
 
+    let usersResp = [];
+
+    for (let id of respondents) {
+      usersResp.push(id as DeepPartial<User>);
+    }
+
     const voteData = {
       title,
       description,
@@ -238,7 +259,7 @@ export class VotesService {
       endDate,
       isAnonymous: isAnonymous ?? true,
       isHidenCount: isHidenCount ?? false,
-      respondents,
+      respondents: usersResp,
       files,
       photos,
     };

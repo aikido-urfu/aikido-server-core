@@ -24,13 +24,16 @@ export class User {
   fullName: string;
 
   @Column()
-  role: string;
+  role: number;
 
   @ManyToOne(() => Group, (group) => group.users)
   group?: Group;
 
   @OneToMany(() => Vote, (vote) => vote.creator)
-  votes: Vote[];
+  createdVotes: Vote[];
+
+  @ManyToMany(() => Vote, (vote) => vote.respondents)
+  assigned: Vote[];
 
   @ManyToMany(() => Vote, (vote) => vote.usersVoted)
   voted: Vote[];

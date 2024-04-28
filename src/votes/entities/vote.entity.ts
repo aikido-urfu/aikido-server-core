@@ -4,8 +4,10 @@ import {
   Column,
   Entity,
   ManyToOne,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
+  JoinTable,
 } from 'typeorm';
 
 @Entity('votes')
@@ -31,8 +33,11 @@ export class Vote {
   @Column()
   isAnonymous: boolean;
 
-  @Column('integer', { array: true, nullable: true })
-  respondents?: number[];
+  @ManyToMany(() => User, (user) => user.assigned, {
+    cascade: true,
+  })
+  @JoinTable()
+  respondents?: User[];
 
   @Column('text', { array: true, nullable: true })
   files?: number[];
@@ -40,7 +45,7 @@ export class Vote {
   @Column('text', { array: true, nullable: true })
   photos?: string[];
 
-  @ManyToOne(() => User, (user) => user.votes)
+  @ManyToOne(() => User, (user) => user.createdVotes)
   creator: User;
 
   @Column('integer', { array: true, default: [] })

@@ -8,6 +8,7 @@ import { saveFile } from 'src/tools/saveFile';
 import { NotFoundError } from 'rxjs';
 import { GroupsService } from '../groups/groups.service';
 import { Group } from 'src/groups/entities/group.entity';
+import {roles} from 'src/tools/roles';
 
 @Injectable()
 export class UsersService {
@@ -18,13 +19,54 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const createdUser = {
+      email: createUserDto.email,
+      fullName: createUserDto.fullName,
+      password: createUserDto.password,
+      role: roles.athlete
+    }
+
     try {
-      const newUser = await this.repository.create(createUserDto);
-      newUser.role = "user";
+      createdUser.role = this.changeRole(createUserDto.role);
+
+      const newUser = await this.repository.create(createdUser);
       await this.repository.save(newUser);
       return { id: newUser.id };
     } catch (error) {
       throw new ForbiddenException(error);
+    }
+  }
+
+  changeRole(role: string) {
+    if (role) {
+      switch (role.toLowerCase()) {
+        case 'athlete':
+        case 'спортсмен':
+          return roles.athlete;
+
+        case 'parent':
+        case 'родитель':
+          return roles.parent;
+
+        case 'trainer':
+        case 'тренер':
+          return roles.trainer;
+
+        case 'club_head':
+        case 'руководитель клуба':
+          return roles.club_head;
+
+        case 'federation_head':
+        case 'руководитель федерации':
+          return roles.federation_head;
+
+        case 'admin':
+        case 'админ':
+          return roles.admin;
+
+        default:
+          throw new ForbiddenException('Такой роли нет');
+      }
     }
   }
 
@@ -48,6 +90,7 @@ export class UsersService {
         id: user.id,
         fullName: user.fullName,
         group: user.group,
+        role: user.role,
         photo: user.photo,
         phone: user.phone,
         emaiL: user.email
@@ -105,9 +148,15 @@ export class UsersService {
     try {
       const oldVote = await this.repository.findOneBy({ id });
 
+      if (updateUserDto.role) {
+        delete updateUserDto.role;
+      }
+      const newRole = 0;
+
       const newVote = await {
         ...oldVote,
         ...updateUserDto,
+        role: newRole
       };
 
       await this.repository.save(newVote);
