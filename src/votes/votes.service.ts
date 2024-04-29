@@ -1,4 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { fetch } from 'node-fetch';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,6 +22,31 @@ export class VotesService {
     private answersService: AnswersService,
     private filesService: FilesService,
   ) {}
+
+  async postTelegram()
+  {
+    try {
+    const response = await fetch('192.168.1.2:3007', {
+      method: 'POST',
+      body: JSON.stringify(
+        {
+          test: 'testVal'
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok)
+    {
+      throw new Error();
+    }
+
+  } catch {
+    null
+  }
+  }
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
     try {
@@ -81,6 +107,7 @@ export class VotesService {
       const newVote = await this.repository.create(voteData);
       await this.repository.save(newVote);
       await this.questionsService.save(questions, newVote.id);
+      await this.postTelegram();
     } catch (error) {
       throw new ForbiddenException(error);
     }
