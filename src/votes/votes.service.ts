@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
-import { fetch } from 'node-fetch';
+import  fetch  from 'node-fetch';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -26,11 +26,11 @@ export class VotesService {
   async postTelegram()
   {
     try {
-    const response = await fetch('192.168.1.2:3007', {
+    const response = await fetch('http://192.168.1.2:3007/votes/new', {
       method: 'POST',
       body: JSON.stringify(
         {
-          test: 'testVal'
+          test: 'hello from NodeJs'
     }),
     headers: {
       'Content-Type': 'application/json',
@@ -43,9 +43,10 @@ export class VotesService {
       throw new Error();
     }
 
-  } catch {
-    null
-  }
+  } catch (error) {
+    console.log(error);
+    console.log(error.message);
+    }
   }
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
