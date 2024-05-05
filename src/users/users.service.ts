@@ -133,6 +133,7 @@ export class UsersService {
           id: user.id,
           fullName: user.fullName,
           group: user.group,
+          role: user.role,
           photo: user.photo,
           phone: user.phone,
           email: user.email,
@@ -145,8 +146,24 @@ export class UsersService {
     }
   }
 
-  findOne(id: number) {
-    return { id };
+  async findMyVotes(id: number) {
+    try {
+      const user = await this.repository.findOne({
+        where: {id},
+        relations: ['assigned']
+      });
+
+      // const result = [];
+
+      // for (let vote of user.assigned) {
+      //   result.push(this.votesService.findOne(vote.id, id));
+      // }
+
+      // return result;
+      return user.assigned;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -170,10 +187,6 @@ export class UsersService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
-
   async changeGroup(userId: number, groupId: number) {
     try {
       const user = await this.repository.findOneBy({
@@ -186,5 +199,9 @@ export class UsersService {
     } catch (error) {
       throw new ForbiddenException(error);
     }
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} user`;
   }
 }

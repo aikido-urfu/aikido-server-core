@@ -302,7 +302,7 @@ export class VotesService {
     try {
       const vote = await this.repository.findOne({
         where: { id },
-        relations: ['questions'],
+        relations: ['questions', 'respondents'],
       });
 
       const now = new Date();
@@ -313,6 +313,12 @@ export class VotesService {
         } else if (now < vote.startDate) {
           throw new ForbiddenException('Голосование не началось');
         }
+      }
+
+      const me = vote.respondents.find((user) => user.id == userId);
+
+      if (!me) {
+        throw new ForbiddenException('Вы не учавствуете в голосовании');
       }
 
       for (const questionAnswers of Object.values(userAnswers)) {

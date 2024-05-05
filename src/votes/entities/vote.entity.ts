@@ -1,3 +1,4 @@
+import { Message } from 'src/messages/entities/message.entity';
 import { Questions } from 'src/questions/entities/questions.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -53,4 +54,7 @@ export class Vote {
 
   @OneToMany(() => Questions, (questions) => questions.vote)
   questions: Questions[];
+
+  @OneToMany(() => Message, (message) => message.vote)
+  messages: Message[];
 }

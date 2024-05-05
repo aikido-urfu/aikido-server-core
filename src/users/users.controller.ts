@@ -37,6 +37,13 @@ export class UsersController {
     return this.usersService.findById(+id);
   }
 
+  @Get('/me/votes')
+  @UseGuards(JwtAuthGuard)
+  // @ApiResponse(GetMe)
+  getMyVotes(@UserId() id: number) {
+    return this.usersService.findMyVotes(id);
+  }
+
   @Patch('/me')
   @UseGuards(JwtAuthGuard)
   @ApiBody(UpdateUser)
