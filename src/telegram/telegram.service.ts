@@ -3,14 +3,106 @@ import { CreateTelegramDto } from './dto/create-telegram.dto';
 import { UpdateTelegramDto } from './dto/update-telegram.dto';
 import { UsersService } from 'src/users/users.service';
 import { VotesService } from 'src/votes/votes.service';
-import { Frontend_URL } from 'API_URL';
+import { Frontend_URL, Telegram_URL } from 'API_URL';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class TelegramService {
   constructor(
     private usersService: UsersService,
     private votesService: VotesService,
+    private headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + process.env.TG_AUTH_TOKEN,
+    },
   ) {}
+
+  async postNewVote(
+    voteName: string,
+    voteStartDate: Date,
+    voteEndDate: Date,
+    userIds: Array<User>,
+  ) {
+    try {
+      const tgUserIds: Array<string> = userIds.map((val) => val.telegramUserID);
+
+      if (!tgUserIds) {
+        console.log('No tg users for notify');
+        return;
+      }
+
+      const response = await fetch(Telegram_URL + '/votes/new', {
+        method: 'POST',
+        body: JSON.stringify({
+          voteName: voteName,
+          voteStartDate: voteStartDate.toISOString(),
+          voteEndDate: voteEndDate.toISOString(),
+          userIds: tgUserIds,
+        }),
+        headers: this.headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          'Error during post message to tg bot: postNewVote - ' +
+            response.statusText,
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async postDiscussionAnswer(
+    voteName: string,
+    userId: string,
+    message: string,
+  ) {
+    try {
+      const response = await fetch(Telegram_URL + '/discussion/answer', {
+        method: 'POST',
+        body: JSON.stringify({
+          voteName: voteName,
+          userId: userId,
+          message: message,
+        }),
+        headers: this.headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          'Error during post message to tg bot: postDiscussionAnswer - ' +
+            response.statusText,
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async postVoteReminder(voteName: string, userId: string, voteEndDate: Date) {
+    try {
+      const response = await fetch(Telegram_URL + '/votes/reminder', {
+        method: 'POST',
+        body: JSON.stringify({
+          voteName: voteName,
+          userId: userId,
+          voteEndDate: voteEndDate.toISOString(),
+        }),
+        headers: this.headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          'Error during post message to tg bot: postVoteReminder - ' +
+            response.statusText,
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   create(createTelegramDto: CreateTelegramDto) {
     return 'This action adds a new telegram';
   }

@@ -1,5 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
-import  fetch  from 'node-fetch';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import fetch from 'node-fetch';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +15,7 @@ import { AnswersService } from 'src/answers/answers.service';
 import { UsersService } from 'src/users/users.service';
 import { saveFile } from 'src/tools/saveFile';
 import { FilesService } from 'src/files/files.service';
+import { TelegramService } from 'src/telegram/telegram.service';
 
 @Injectable()
 export class VotesService {
@@ -21,33 +26,8 @@ export class VotesService {
     private questionsService: QuestionsService,
     private answersService: AnswersService,
     private filesService: FilesService,
+    private telegramService: TelegramService,
   ) {}
-
-  async postTelegram()
-  {
-    try {
-    const response = await fetch('http://192.168.1.2:3007/votes/new', {
-      method: 'POST',
-      body: JSON.stringify(
-        {
-          test: 'hello from NodeJs'
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok)
-    {
-      throw new Error();
-    }
-
-  } catch (error) {
-    console.log(error);
-    console.log(error.message);
-    }
-  }
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
     try {
@@ -74,7 +54,9 @@ export class VotesService {
         let foundUser = await this.usersService.findById(id);
         // let foundUser = id as DeepPartial<User>;
         if ((await this.usersService.findById(userId)).role < foundUser.role) {
-          throw new ForbiddenException(`Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`);
+          throw new ForbiddenException(
+            `Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`,
+          );
         }
         usersResp.push(foundUser);
       }
@@ -100,15 +82,27 @@ export class VotesService {
       const startDateNew = voteData.startDate;
       const endDateNew = voteData.endDate;
 
-      if (!startDateNew || !endDateNew || startDateNew >= endDateNew || 
-        voteData.creationDate > endDateNew || voteData.creationDate > startDateNew) {
-        throw new ForbiddenException('Неверно указаны даты конца и начала голосования');
-      } 
+      if (
+        !startDateNew ||
+        !endDateNew ||
+        startDateNew >= endDateNew ||
+        voteData.creationDate > endDateNew ||
+        voteData.creationDate > startDateNew
+      ) {
+        throw new ForbiddenException(
+          'Неверно указаны даты конца и начала голосования',
+        );
+      }
 
       const newVote = await this.repository.create(voteData);
       await this.repository.save(newVote);
       await this.questionsService.save(questions, newVote.id);
-      await this.postTelegram();
+      await this.telegramService.postNewVote(
+        newVote.title,
+        newVote.startDate,
+        newVote.endDate,
+        newVote.respondents,
+      );
     } catch (error) {
       throw new ForbiddenException(error);
     }
@@ -313,10 +307,9 @@ export class VotesService {
 
       if (vote.endDate && vote.startDate) {
         if (vote.endDate < now) {
-          throw new ForbiddenException("Время на голосование истекло");
-        }
-        else if (now < vote.startDate) {
-          throw new ForbiddenException("Голосование не началось");
+          throw new ForbiddenException('Время на голосование истекло');
+        } else if (now < vote.startDate) {
+          throw new ForbiddenException('Голосование не началось');
         }
       }
 

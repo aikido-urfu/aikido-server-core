@@ -23,7 +23,7 @@ export class AuthService {
     email,
     password,
     fullName,
-    role
+    role,
   }: {
     email: string;
     password: string;

@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,7 +12,7 @@ import { saveFile } from 'src/tools/saveFile';
 import { NotFoundError } from 'rxjs';
 import { GroupsService } from '../groups/groups.service';
 import { Group } from 'src/groups/entities/group.entity';
-import {roles} from 'src/tools/roles';
+import { roles } from 'src/tools/roles';
 
 @Injectable()
 export class UsersService {
@@ -23,8 +27,8 @@ export class UsersService {
       email: createUserDto.email,
       fullName: createUserDto.fullName,
       password: createUserDto.password,
-      role: roles.athlete
-    }
+      role: roles.athlete,
+    };
 
     try {
       createdUser.role = this.changeRole(createUserDto.role);
@@ -93,7 +97,7 @@ export class UsersService {
         role: user.role,
         photo: user.photo,
         phone: user.phone,
-        emaiL: user.email
+        emaiL: user.email,
       };
 
       return response;
@@ -156,7 +160,7 @@ export class UsersService {
       const newVote = await {
         ...oldVote,
         ...updateUserDto,
-        role: newRole
+        role: newRole,
       };
 
       await this.repository.save(newVote);
@@ -175,7 +179,7 @@ export class UsersService {
         id: userId,
       });
 
-      const newGroup = { group: groupId as DeepPartial<Group> }
+      const newGroup = { group: groupId as DeepPartial<Group> };
       const newUser = { ...user, ...newGroup };
       await this.repository.save(newUser);
     } catch (error) {

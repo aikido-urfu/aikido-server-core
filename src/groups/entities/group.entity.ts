@@ -1,5 +1,5 @@
-import { User } from "src/users/entities/user.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from 'src/users/entities/user.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('groups')
 export class Group {
@@ -10,5 +10,5 @@ export class Group {
   name: string;
 
   @OneToMany(() => User, (user) => user.group)
-  users: User[]
+  users: User[];
 }
