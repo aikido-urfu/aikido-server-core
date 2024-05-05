@@ -98,6 +98,7 @@ export class UsersService {
         photo: user.photo,
         phone: user.phone,
         emaiL: user.email,
+        telegramUserID: user.telegramUserID,
       };
 
       return response;
