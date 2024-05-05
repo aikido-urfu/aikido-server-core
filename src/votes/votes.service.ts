@@ -1,9 +1,10 @@
 import {
   BadRequestException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
 } from '@nestjs/common';
-import fetch from 'node-fetch';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -22,11 +23,12 @@ export class VotesService {
   constructor(
     @InjectRepository(Vote)
     private repository: Repository<Vote>,
+    @Inject(forwardRef(() => TelegramService))
+    private telegramService: TelegramService,
     private usersService: UsersService,
     private questionsService: QuestionsService,
     private answersService: AnswersService,
     private filesService: FilesService,
-    private telegramService: TelegramService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {

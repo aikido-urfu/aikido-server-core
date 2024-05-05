@@ -1,20 +1,28 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateTelegramDto } from './dto/create-telegram.dto';
 import { UpdateTelegramDto } from './dto/update-telegram.dto';
 import { UsersService } from 'src/users/users.service';
-import { VotesService } from 'src/votes/votes.service';
 import { Frontend_URL, Telegram_URL } from 'API_URL';
 import { User } from 'src/users/entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TelegramService {
+  private headers = {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer ' + process.env.TG_AUTH_TOKEN,
+  };
+
   constructor(
+    @InjectRepository(User)
+    private repository: Repository<User>,
     private usersService: UsersService,
-    private votesService: VotesService,
-    private headers = {
-      'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + process.env.TG_AUTH_TOKEN,
-    },
   ) {}
 
   async postNewVote(
@@ -108,22 +116,22 @@ export class TelegramService {
   }
 
   async findAll(tgid: string) {
-    try {
-      const userId = await this.usersService.findByTgid(tgid);
-      const votes = await this.votesService.findCreatedByMe(userId);
-      const response = [];
+    // try {
+    //   const userId = await this.usersService.findByTgid(tgid);
+    //   const votes = await this.votesService.findCreatedByMe(userId);
+    //   const response = [];
 
-      for (const vote of votes) {
-        response.push({
-          text: vote.description,
-          url: Frontend_URL + 'vote/' + vote.id,
-        });
-      }
+    //   for (const vote of votes) {
+    //     response.push({
+    //       text: vote.description,
+    //       url: Frontend_URL + 'vote/' + vote.id,
+    //     });
+    //   }
 
-      return response;
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
+    //   return response;
+    // } catch (error) {
+    //   throw new ForbiddenException(error);
+    // }
   }
 
   findOne(id: number) {
