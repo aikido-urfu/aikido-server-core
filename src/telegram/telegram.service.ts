@@ -32,14 +32,19 @@ export class TelegramService {
     userIds: Array<User>,
   ) {
     try {
-      const tgUserIds: Array<string> = userIds.map((val) => val.telegramUserID);
+      const tgUserIds = userIds.reduce(function (result, val) {
+        if (val.telegramUserID) {
+          result.push(val.telegramUserID);
+        }
+        return result;
+      }, []);
 
-      if (!tgUserIds) {
-        console.log('No tg users for notify');
+      if (tgUserIds.length == 0) {
+        console.log('No tg users to notify');
         return;
       }
 
-      const response = await fetch(Telegram_URL + '/votes/new', {
+      const response = await fetch(Telegram_URL + 'votes/new', {
         method: 'POST',
         body: JSON.stringify({
           voteName: voteName,
@@ -67,7 +72,7 @@ export class TelegramService {
     message: string,
   ) {
     try {
-      const response = await fetch(Telegram_URL + '/discussion/answer', {
+      const response = await fetch(Telegram_URL + 'discussion/answer', {
         method: 'POST',
         body: JSON.stringify({
           voteName: voteName,
@@ -90,7 +95,7 @@ export class TelegramService {
 
   async postVoteReminder(voteName: string, userId: string, voteEndDate: Date) {
     try {
-      const response = await fetch(Telegram_URL + '/votes/reminder', {
+      const response = await fetch(Telegram_URL + 'votes/reminder', {
         method: 'POST',
         body: JSON.stringify({
           voteName: voteName,
