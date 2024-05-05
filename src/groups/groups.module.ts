@@ -8,10 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 @Module({
   controllers: [GroupsController],
   providers: [GroupsService],
-  imports: [
-    TypeOrmModule.forFeature([Group]),
-    UsersModule,
-  ],
-  exports: [GroupsService]
+  imports: [TypeOrmModule.forFeature([Group]), UsersModule],
+  exports: [GroupsService],
 })
 export class GroupsModule {}

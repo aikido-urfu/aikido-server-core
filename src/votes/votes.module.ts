@@ -7,6 +7,7 @@ import { QuestionsModule } from 'src/questions/questions.module';
 import { AnswersModule } from 'src/answers/answers.module';
 import { UsersModule } from 'src/users/users.module';
 import { FilesModule } from 'src/files/files.module';
+import { TelegramModule } from 'src/telegram/telegram.module';
 
 @Module({
   controllers: [VotesController],
@@ -17,6 +18,7 @@ import { FilesModule } from 'src/files/files.module';
     QuestionsModule,
     AnswersModule,
     FilesModule,
+    TelegramModule,
   ],
   exports: [VotesService],
 })

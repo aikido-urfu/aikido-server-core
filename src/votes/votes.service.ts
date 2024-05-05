@@ -1,4 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,12 +16,15 @@ import { AnswersService } from 'src/answers/answers.service';
 import { UsersService } from 'src/users/users.service';
 import { saveFile } from 'src/tools/saveFile';
 import { FilesService } from 'src/files/files.service';
+import { TelegramService } from 'src/telegram/telegram.service';
 
 @Injectable()
 export class VotesService {
   constructor(
     @InjectRepository(Vote)
     private repository: Repository<Vote>,
+    @Inject(forwardRef(() => TelegramService))
+    private telegramService: TelegramService,
     private usersService: UsersService,
     private questionsService: QuestionsService,
     private answersService: AnswersService,
@@ -47,7 +56,9 @@ export class VotesService {
         let foundUser = await this.usersService.findById(id);
         // let foundUser = id as DeepPartial<User>;
         if ((await this.usersService.findById(userId)).role < foundUser.role) {
-          throw new ForbiddenException(`Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`);
+          throw new ForbiddenException(
+            `Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`,
+          );
         }
         usersResp.push(foundUser);
       }
@@ -73,14 +84,27 @@ export class VotesService {
       const startDateNew = voteData.startDate;
       const endDateNew = voteData.endDate;
 
-      if (!startDateNew || !endDateNew || startDateNew >= endDateNew || 
-        voteData.creationDate > endDateNew || voteData.creationDate > startDateNew) {
-        throw new ForbiddenException('Неверно указаны даты конца и начала голосования');
-      } 
+      if (
+        !startDateNew ||
+        !endDateNew ||
+        startDateNew >= endDateNew ||
+        voteData.creationDate > endDateNew ||
+        voteData.creationDate > startDateNew
+      ) {
+        throw new ForbiddenException(
+          'Неверно указаны даты конца и начала голосования',
+        );
+      }
 
       const newVote = await this.repository.create(voteData);
       await this.repository.save(newVote);
       await this.questionsService.save(questions, newVote.id);
+      await this.telegramService.postNewVote(
+        newVote.title,
+        newVote.startDate,
+        newVote.endDate,
+        newVote.respondents,
+      );
     } catch (error) {
       throw new ForbiddenException(error);
     }
@@ -285,10 +309,9 @@ export class VotesService {
 
       if (vote.endDate && vote.startDate) {
         if (vote.endDate < now) {
-          throw new ForbiddenException("Время на голосование истекло");
-        }
-        else if (now < vote.startDate) {
-          throw new ForbiddenException("Голосование не началось");
+          throw new ForbiddenException('Время на голосование истекло');
+        } else if (now < vote.startDate) {
+          throw new ForbiddenException('Голосование не началось');
         }
       }
 
