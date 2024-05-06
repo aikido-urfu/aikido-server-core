@@ -10,7 +10,8 @@ import { UsersService } from 'src/users/users.service';
 import { Frontend_URL, Telegram_URL } from 'API_URL';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { And, Repository } from 'typeorm';
+import { Vote } from 'src/votes/entities/vote.entity';
 
 @Injectable()
 export class TelegramService {
@@ -22,17 +23,14 @@ export class TelegramService {
   constructor(
     @InjectRepository(User)
     private repository: Repository<User>,
+    @InjectRepository(Vote)
     private usersService: UsersService,
   ) {}
 
-  async postNewVote(
-    voteName: string,
-    voteStartDate: Date,
-    voteEndDate: Date,
-    userIds: Array<User>,
-  ) {
+  // TODO: В случае провала рассылки запустить таймер на повторную попытку через время.
+  async postNewVote(vote: Vote) {
     try {
-      const tgUserIds = userIds.reduce(function (result, val) {
+      const tgUserIds = vote.respondents.reduce(function (result, val) {
         if (val.telegramUserID) {
           result.push(val.telegramUserID);
         }
@@ -47,10 +45,11 @@ export class TelegramService {
       const response = await fetch(Telegram_URL + 'votes/new', {
         method: 'POST',
         body: JSON.stringify({
-          voteName: voteName,
-          voteStartDate: voteStartDate.toISOString(),
-          voteEndDate: voteEndDate.toISOString(),
-          userIds: tgUserIds,
+          id: vote.id,
+          title: vote.title,
+          startDate: vote.startDate.toISOString(),
+          endDate: vote.endDate.toISOString(),
+          tgUserIds: tgUserIds,
         }),
         headers: this.headers,
       });
@@ -93,14 +92,27 @@ export class TelegramService {
     }
   }
 
-  async postVoteReminder(voteName: string, userId: string, voteEndDate: Date) {
+  async postVoteReminder(vote: Vote) {
     try {
+      const tgUserIds = vote.respondents.reduce(function (result, user) {
+        if (user.telegramUserID && !vote.usersVoted.includes(user.id)) {
+          result.push(user.telegramUserID);
+        }
+        return result;
+      }, []);
+
+      if (tgUserIds.length == 0) {
+        console.log('No tg users to notify');
+        return;
+      }
+
       const response = await fetch(Telegram_URL + 'votes/reminder', {
         method: 'POST',
         body: JSON.stringify({
-          voteName: voteName,
-          userId: userId,
-          voteEndDate: voteEndDate.toISOString(),
+          id: vote.id,
+          title: vote.title,
+          voteEndDate: vote.endDate.toISOString(),
+          tgUserIds: tgUserIds,
         }),
         headers: this.headers,
       });
@@ -108,6 +120,42 @@ export class TelegramService {
       if (!response.ok) {
         throw new Error(
           'Error during post message to tg bot: postVoteReminder - ' +
+            response.statusText,
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async postVoteResults(vote: Vote, results: Object) {
+    try {
+      const tgUserIds = vote.respondents.reduce(function (result, val) {
+        if (val.telegramUserID) {
+          result.push(val.telegramUserID);
+        }
+        return result;
+      }, []);
+
+      if (tgUserIds.length == 0) {
+        console.log('No tg users to notify');
+        return;
+      }
+
+      const response = await fetch(Telegram_URL + 'votes/reminder', {
+        method: 'POST',
+        body: JSON.stringify({
+          id: vote.id,
+          title: vote.title,
+          tgUserIds: tgUserIds,
+          results: results,
+        }),
+        headers: this.headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          'Error during post message to tg bot: postVoteResults - ' +
             response.statusText,
         );
       }
@@ -125,14 +173,12 @@ export class TelegramService {
     //   const userId = await this.usersService.findByTgid(tgid);
     //   const votes = await this.votesService.findCreatedByMe(userId);
     //   const response = [];
-
     //   for (const vote of votes) {
     //     response.push({
     //       text: vote.description,
     //       url: Frontend_URL + 'vote/' + vote.id,
     //     });
     //   }
-
     //   return response;
     // } catch (error) {
     //   throw new ForbiddenException(error);
