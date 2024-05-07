@@ -4,6 +4,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
@@ -17,6 +18,8 @@ import { UsersService } from 'src/users/users.service';
 import { saveFile } from 'src/tools/saveFile';
 import { FilesService } from 'src/files/files.service';
 import { TelegramService } from 'src/telegram/telegram.service';
+import { MessagesService } from '../messages/messages.service';
+import { CreateMessageDto } from 'src/messages/dto/create-message.dto';
 
 @Injectable()
 export class VotesService {
@@ -29,6 +32,7 @@ export class VotesService {
     private questionsService: QuestionsService,
     private answersService: AnswersService,
     private filesService: FilesService,
+    private messagesService: MessagesService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
@@ -63,8 +67,8 @@ export class VotesService {
         usersResp.push(foundUser);
       }
 
-      console.log(userId as DeepPartial<User>);
-      console.log(respondents as DeepPartial<User>[]);
+      // console.log(userId as DeepPartial<User>);
+      // console.log(respondents as DeepPartial<User>[]);
 
       const voteData = {
         creator: userId as DeepPartial<User>,
@@ -247,6 +251,46 @@ export class VotesService {
         usersVoted: users,
         user: author,
       };
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
+  async getMessages(id: number) {
+    const vote = await this.repository.findOne({
+      where: { id },
+      relations: ['creator', 'messages'],
+    });
+
+    if (!vote) {
+      throw new NotFoundException('Обсуждение не найдено');
+    }
+
+    const result = [];
+
+    try {
+      for (let message of vote.messages) {
+        let refUser;
+        if (message.isRef) {
+          refUser = await this.usersService.findById((await this.messagesService.findOne(message.refComId)).userId)
+        }
+
+        const newMes = {
+          id: message.id,
+          text: message.text, 
+          creationDate: message.creationDate,
+          userId: message.userId,
+          userName: (await this.usersService.findById(message.userId)).fullName,
+          isRef: message.isRef,
+          refComId: message.isRef ? message.refComId : null,
+          refUserId: message.isRef ? refUser.id : null,
+          refUserName: message.isRef ? refUser.fullName : null,
+        };
+
+        result.push(newMes);
+      }
+
+      return result;
     } catch (error) {
       throw new ForbiddenException(error);
     }

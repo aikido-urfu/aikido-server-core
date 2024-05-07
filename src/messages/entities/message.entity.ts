@@ -1,5 +1,5 @@
 import { Vote } from "src/votes/entities/vote.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('messages')
 export class Message {
@@ -12,12 +12,15 @@ export class Message {
     @ManyToOne(() => Vote, (vote) => vote.messages)
     vote: Vote;
 
+    @CreateDateColumn({ type: "timestamptz" })
+    creationDate: Date;
+
     @Column()
     userId: number;
 
     @Column()
-    reference: boolean;
+    isRef: boolean;
 
     @Column({ nullable: true })
-    refToUserId?: number;
+    refComId?: number;
 }

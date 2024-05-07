@@ -160,7 +160,7 @@ export class UsersService {
       // }
 
       // return result;
-      return user.assigned;
+      return { votes: user.assigned };
     } catch (error) {
       throw new ForbiddenException(error);
     }
