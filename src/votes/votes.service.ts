@@ -290,7 +290,7 @@ export class VotesService {
         result.push(newMes);
       }
 
-      return result;
+      return { messages: result };
     } catch (error) {
       throw new ForbiddenException(error);
     }
