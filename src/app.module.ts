@@ -15,6 +15,8 @@ import { FilesModule } from './files/files.module';
 import { Files } from './files/entities/files.entity';
 import { GroupsModule } from './groups/groups.module';
 import { Group } from './groups/entities/group.entity';
+import { MessagesModule } from './messages/messages.module';
+import { Message } from './messages/entities/message.entity';
 
 @Module({
   imports: [
@@ -32,9 +34,10 @@ import { Group } from './groups/entities/group.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Vote, Questions, Answers, Files, Group],
+      entities: [User, Vote, Questions, Answers, Files, Group, Message],
       synchronize: true,
     }),
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

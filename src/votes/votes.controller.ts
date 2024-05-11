@@ -48,6 +48,12 @@ export class VotesController {
     return this.votesService.findOne(+id, userId);
   }
 
+  @Get(':id/messages')
+  @ApiResponse(GetVote)
+  findMessages(@Param('id') id: string) {
+    return this.votesService.getMessages(+id);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBody(PostVote)
