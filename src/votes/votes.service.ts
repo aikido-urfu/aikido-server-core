@@ -103,12 +103,7 @@ export class VotesService {
       const newVote = await this.repository.create(voteData);
       await this.repository.save(newVote);
       await this.questionsService.save(questions, newVote.id);
-      await this.telegramService.postNewVote(
-        newVote.title,
-        newVote.startDate,
-        newVote.endDate,
-        newVote.respondents,
-      );
+      await this.telegramService.postNewVote(newVote);
     } catch (error) {
       throw new ForbiddenException(error);
     }
@@ -272,12 +267,14 @@ export class VotesService {
       for (let message of vote.messages) {
         let refUser;
         if (message.isRef) {
-          refUser = await this.usersService.findById((await this.messagesService.findOne(message.refComId)).userId)
+          refUser = await this.usersService.findById(
+            (await this.messagesService.findOne(message.refComId)).userId,
+          );
         }
 
         const newMes = {
           id: message.id,
-          text: message.text, 
+          text: message.text,
           creationDate: message.creationDate,
           userId: message.userId,
           userName: (await this.usersService.findById(message.userId)).fullName,

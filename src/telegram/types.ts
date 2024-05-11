@@ -2,7 +2,7 @@ export const TelegramId = {
   schema: {
     type: 'object',
     properties: {
-      tgid: {
+      telegramUserID: {
         type: 'string',
       },
     },
@@ -35,9 +35,20 @@ export const Start = {
   schema: {
     type: 'object',
     properties: {
-      tgid: {
+      telegramUserID: {
         type: 'string',
       },
+      token: {
+        type: 'string',
+      },
+    },
+  },
+};
+
+export const Token = {
+  schema: {
+    type: 'object',
+    properties: {
       token: {
         type: 'string',
       },
