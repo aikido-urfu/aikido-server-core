@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -149,8 +150,8 @@ export class UsersService {
   async findMyVotes(id: number) {
     try {
       const user = await this.repository.findOne({
-        where: {id},
-        relations: ['assigned']
+        where: { id },
+        relations: ['assigned'],
       });
 
       // const result = [];
@@ -168,22 +169,27 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
-      const oldVote = await this.repository.findOneBy({ id });
+      const oldUser = await this.repository.findOneBy({ id });
 
       if (updateUserDto.role) {
         delete updateUserDto.role;
       }
       const newRole = 0;
 
-      const newVote = await {
-        ...oldVote,
+      const newUser = await {
+        ...oldUser,
         ...updateUserDto,
         role: newRole,
       };
 
-      await this.repository.save(newVote);
+      if (JSON.stringify(newUser) === JSON.stringify(oldUser)) {
+        throw new ConflictException('Nothing has been changed');
+      }
+
+      await this.repository.save(newUser);
     } catch (error) {
-      throw new ForbiddenException(error);
+      if (error instanceof ConflictException) throw error;
+      else throw new ForbiddenException(error);
     }
   }
 

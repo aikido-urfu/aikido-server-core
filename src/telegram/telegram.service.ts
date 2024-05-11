@@ -1,17 +1,22 @@
 import {
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CreateTelegramDto } from './dto/create-telegram.dto';
 import { UpdateTelegramDto } from './dto/update-telegram.dto';
 import { UsersService } from 'src/users/users.service';
+import { AuthService } from './../auth/auth.service';
 import { Frontend_URL, Telegram_URL } from 'API_URL';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { And, Repository } from 'typeorm';
 import { Vote } from 'src/votes/entities/vote.entity';
+import { createHash, randomBytes } from 'crypto';
 
 @Injectable()
 export class TelegramService {
@@ -19,13 +24,22 @@ export class TelegramService {
     'Content-Type': 'application/json',
     Authorization: 'Bearer ' + process.env.TG_AUTH_TOKEN,
   };
+  private readonly tokens = new Map<string, number>();
 
   constructor(
-    @InjectRepository(User)
-    private repository: Repository<User>,
-    @InjectRepository(Vote)
     private usersService: UsersService,
+    private authService: AuthService,
   ) {}
+
+  generateToken(userId: number): string {
+    const token = randomBytes(16).toString('hex');
+    this.tokens.set(token, userId);
+    return token;
+  }
+
+  getUserIdByToken(token: string): number | undefined {
+    return this.tokens.get(token);
+  }
 
   // TODO: В случае провала рассылки запустить таймер на повторную попытку через время.
   async postNewVote(vote: Vote) {
@@ -61,7 +75,7 @@ export class TelegramService {
         );
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
   }
 
@@ -88,7 +102,7 @@ export class TelegramService {
         );
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
   }
 
@@ -124,7 +138,7 @@ export class TelegramService {
         );
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
   }
 
@@ -160,12 +174,37 @@ export class TelegramService {
         );
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
   }
 
-  create(createTelegramDto: CreateTelegramDto) {
-    return 'This action adds a new telegram';
+  async getToken(userId: number) {
+    return { token: this.generateToken(userId) };
+  }
+
+  async create(createTelegramDto: CreateTelegramDto) {
+    try {
+      const userId = this.getUserIdByToken(createTelegramDto.token);
+      if (!userId) {
+        throw new BadRequestException();
+      }
+
+      await this.usersService.update(userId, {
+        telegramUserID: createTelegramDto.telegramUserID,
+      });
+
+      return `Telegram linked for ${userId} user id`;
+    } catch (error) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      } else {
+        console.log(error);
+        throw new InternalServerErrorException(error);
+      }
+    }
   }
 
   async findAll(tgid: string) {
@@ -193,7 +232,22 @@ export class TelegramService {
     return `This action updates a #${id} telegram`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} telegram`;
+  async remove(id: string) {
+    try {
+      const userId = await this.usersService.findByTgid(id);
+
+      await this.usersService.update(userId, {
+        telegramUserID: null,
+      });
+
+      return `Telegram unlinked for ${userId} user id`;
+    } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw new ConflictException('No such user');
+      } else {
+        console.log(error);
+        throw new InternalServerErrorException(error);
+      }
+    }
   }
 }

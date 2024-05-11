@@ -1,14 +1,31 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { TelegramService } from './telegram.service';
 import { CreateTelegramDto } from './dto/create-telegram.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Start, TelegramId, Votes } from './types';
+import { Start, TelegramId, Token, Votes } from './types';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { UserId } from 'src/decorators/user-id.decorator';
 
 @Controller('telegram')
 @ApiTags('telegram')
 @ApiBearerAuth()
 export class TelegramController {
   constructor(private readonly telegramService: TelegramService) {}
+
+  @Get('/token')
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse(Token)
+  getToken(@UserId() id: number) {
+    return this.telegramService.getToken(id);
+  }
 
   @Post('/start')
   @ApiBody(Start)
@@ -25,7 +42,7 @@ export class TelegramController {
 
   @Delete('/unsubscribe')
   @ApiBody(TelegramId)
-  remove(@Param('id') id: string) {
-    return this.telegramService.remove(+id);
+  remove(@Body() body: { telegramUserID: string }) {
+    return this.telegramService.remove(body.telegramUserID);
   }
 }

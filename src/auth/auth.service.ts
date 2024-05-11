@@ -91,6 +91,7 @@ export class AuthService {
   async findByJWT(token: string) {
     try {
       const decodedToken = this.jwtService.verify(token);
+      // const decodedToken = this.jwtService.verify(token, { maxAge: '1h' });
       const userId = decodedToken.id;
       return userId;
     } catch (error) {
@@ -98,4 +99,34 @@ export class AuthService {
       return null;
     }
   }
+
+  // async getToken(userId: number) {
+  //   try {
+  //     return this.jwtService.sign(
+  //       { id: userId },
+  //       {
+  //         expiresIn: '1h',
+  //         secret: process.env.TG_SECRET_KEY,
+  //         allowInsecureKeySizes: true,
+  //         algorithm: 'HS256',
+  //       },
+  //     );
+  //   } catch (error) {
+  //     throw new BadRequestException(`No such user with ${userId} id`);
+  //   }
+  // }
+
+  // async getByTgToken(token: string) {
+  //   // Дешифруем токен
+  //   try {
+  //     const decodedToken = this.jwtService.verify(token, {
+  //       secret: process.env.TG_SECRET_KEY,
+  //     }) as {
+  //       id: string;
+  //     };
+  //     return decodedToken.id; // Возвращаем идентификатор пользователя
+  //   } catch (error) {
+  //     return null; // Если токен недействителен, возвращаем null
+  //   }
+  // }
 }
