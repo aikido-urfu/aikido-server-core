@@ -220,7 +220,12 @@ export class TelegramService {
         return {
           id: vote.id,
           title: vote.title,
-          tgUserIds: vote.respondents.map((user) => user.telegramUserID),
+          tgUserIds: vote.respondents.reduce(function (result, user) {
+            if (!vote.usersVoted.includes(user.id)) {
+              result.push(user.telegramUserID);
+            }
+            return result;
+          }, []),
           endDate: vote.endDate.toISOString(),
         };
       });
