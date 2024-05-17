@@ -23,4 +23,7 @@ export class Message {
 
     @Column({ nullable: true })
     refComId?: number;
+
+    @Column('integer', { array: true, default: [] })
+    references?: number[];
 }

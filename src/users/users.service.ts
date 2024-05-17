@@ -28,7 +28,7 @@ export class UsersService {
       email: createUserDto.email,
       fullName: createUserDto.fullName,
       password: createUserDto.password,
-      role: roles.athlete,
+      role: 'athlete',
     };
 
     try {
@@ -47,27 +47,27 @@ export class UsersService {
       switch (role.toLowerCase()) {
         case 'athlete':
         case 'спортсмен':
-          return roles.athlete;
+          return 'athlete';
 
         case 'parent':
         case 'родитель':
-          return roles.parent;
+          return 'parent';
 
         case 'trainer':
         case 'тренер':
-          return roles.trainer;
+          return 'trainer';
 
         case 'club_head':
         case 'руководитель клуба':
-          return roles.club_head;
+          return 'club_head';
 
         case 'federation_head':
         case 'руководитель федерации':
-          return roles.federation_head;
+          return 'federation_head';
 
         case 'admin':
         case 'админ':
-          return roles.admin;
+          return 'admin';
 
         default:
           throw new ForbiddenException('Такой роли нет');
@@ -154,14 +154,15 @@ export class UsersService {
         relations: ['assigned'],
       });
 
-      // const result = [];
+      const result = [];
+      const now = new Date();
 
-      // for (let vote of user.assigned) {
-      //   result.push(this.votesService.findOne(vote.id, id));
-      // }
+      for (let vote of user.assigned) {
+        result.push({...vote, isActive: vote.endDate > now && now > vote.startDate})
+      }
 
-      // return result;
-      return { votes: user.assigned };
+      return { votes: result.reverse };
+      // return { votes: user.assigned.reverse };
     } catch (error) {
       throw new ForbiddenException(error);
     }
@@ -174,7 +175,7 @@ export class UsersService {
       if (updateUserDto.role) {
         delete updateUserDto.role;
       }
-      const newRole = 0;
+      const newRole = 'athlete';
 
       const newUser = await {
         ...oldUser,
