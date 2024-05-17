@@ -11,7 +11,7 @@ import { CreateTelegramDto } from './dto/create-telegram.dto';
 import { UpdateTelegramDto } from './dto/update-telegram.dto';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './../auth/auth.service';
-import { Frontend_URL, Telegram_URL } from 'API_URL';
+import { Telegram_URL } from 'API_URL';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { And, Repository } from 'typeorm';
