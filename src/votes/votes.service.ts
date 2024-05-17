@@ -6,10 +6,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import {
+  DeepPartial,
+  Repository,
+  LessThan,
+  MoreThanOrEqual,
+  And,
+  IsNull,
+  Not,
+} from 'typeorm';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, Repository } from 'typeorm';
 import { Vote } from './entities/vote.entity';
 import { QuestionsService } from 'src/questions/questions.service';
 import { User } from 'src/users/entities/user.entity';
@@ -288,6 +296,57 @@ export class VotesService {
       }
 
       return { messages: result };
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
+  // expired = endDate >= (cur - 3h) && endDate < (cur)
+  // period in seconds (10800 = 3h)
+  async getExpired(period: number = 10800) {
+    try {
+      if (!period) {
+        period = 10800;
+      }
+      const currentDate = new Date();
+      const startTime = new Date(currentDate.getTime() - period * 1000);
+      const votes = await this.repository.find({
+        relations: ['respondents'],
+        where: {
+          endDate: And(MoreThanOrEqual(startTime), LessThan(currentDate)),
+          respondents: {
+            telegramUserID: Not(IsNull()),
+          },
+        },
+      });
+
+      return votes;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
+  // expiring = endDate >= (cur + 24h - 3h) && endDate < (cur + 24h)
+  async getExpiring(period: number = 10800) {
+    try {
+      if (!period) {
+        period = 10800;
+      }
+      const day = 86400; // 24h
+      const currentDate = new Date();
+      const startTime = new Date(currentDate.getTime() + (day - period) * 1000);
+      const endTime = new Date(currentDate.getTime() + day * 1000);
+      const votes = await this.repository.find({
+        relations: ['respondents'],
+        where: {
+          endDate: And(MoreThanOrEqual(startTime), LessThan(endTime)),
+          respondents: {
+            telegramUserID: Not(IsNull()),
+          },
+        },
+      });
+
+      return votes;
     } catch (error) {
       throw new ForbiddenException(error);
     }

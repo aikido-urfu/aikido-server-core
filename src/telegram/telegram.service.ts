@@ -17,6 +17,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { And, Repository } from 'typeorm';
 import { Vote } from 'src/votes/entities/vote.entity';
 import { createHash, randomBytes } from 'crypto';
+import { VotesService } from 'src/votes/votes.service';
+import { GetExpiredVotes } from './types';
 
 @Injectable()
 export class TelegramService {
@@ -29,6 +31,8 @@ export class TelegramService {
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
+    @Inject(forwardRef(() => VotesService))
+    private voteService: VotesService,
   ) {}
 
   generateToken(userId: number): string {
@@ -180,6 +184,56 @@ export class TelegramService {
 
   async getToken(userId: number) {
     return { token: this.generateToken(userId) };
+  }
+
+  async getExpiredVotes(period: number) {
+    try {
+      period = Number(period);
+      const expiredVotes = await this.voteService.getExpired(period);
+
+      const response = expiredVotes.map((vote) => {
+        return {
+          id: vote.id,
+          title: vote.title,
+          tgUserIds: vote.respondents.map((user) => user.telegramUserID),
+        };
+      });
+
+      return { votes: response };
+    } catch (error) {
+      if (error! instanceof InternalServerErrorException) {
+        throw error;
+      } else {
+        console.log(error);
+        throw new InternalServerErrorException(error);
+      }
+    }
+  }
+
+  // Get votes, which will end in less than 24h, and become this in past 3 hours
+  async getExpiringVotes(period: number) {
+    try {
+      period = Number(period);
+      const expiringVotes = await this.voteService.getExpiring(period);
+
+      const response = expiringVotes.map((vote) => {
+        return {
+          id: vote.id,
+          title: vote.title,
+          tgUserIds: vote.respondents.map((user) => user.telegramUserID),
+          endDate: vote.endDate.toISOString(),
+        };
+      });
+
+      return { votes: response };
+    } catch (error) {
+      if (error! instanceof InternalServerErrorException) {
+        throw error;
+      } else {
+        console.log(error);
+        throw new InternalServerErrorException(error);
+      }
+    }
   }
 
   async create(createTelegramDto: CreateTelegramDto) {

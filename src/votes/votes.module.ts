@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { VotesService } from './votes.service';
 import { VotesController } from './votes.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -19,8 +19,8 @@ import { MessagesModule } from 'src/messages/messages.module';
     QuestionsModule,
     AnswersModule,
     FilesModule,
-    TelegramModule,
     MessagesModule,
+    forwardRef(() => TelegramModule),
   ],
   exports: [VotesService],
 })
