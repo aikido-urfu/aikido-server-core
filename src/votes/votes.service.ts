@@ -294,16 +294,16 @@ export class VotesService {
       }
 
       let references = [];
-  
+
       if (message.references.length > 0) {
         for (const id of message.references) {
           references.push(await formMessageRecursive(messages.find((m) => m.id == id), us, ms));
         }
       }
-  
+
       let newMes = {
         id: message.id,
-        text: message.text, 
+        text: message.text,
         creationDate: message.creationDate,
         userId: message.userId,
         userName: (await us.findById(message.userId)).fullName,
@@ -311,7 +311,7 @@ export class VotesService {
         refComId: message.isRef ? message.refComId : null,
         refUserId: message.isRef ? refUser.id : null,
         refUserName: message.isRef ? refUser.fullName : null,
-        references: references
+        references: references,
       };
 
       return newMes;

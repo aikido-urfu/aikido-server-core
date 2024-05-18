@@ -210,12 +210,16 @@ export class TelegramService {
     }
   }
 
+  // TODO: https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
+  // TODO: https://stackoverflow.com/questions/1091372/getting-the-clients-time-zone-and-offset-in-javascript
+  // TODO: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   // Get votes, which will end in less than 24h, and become this in past 3 hours
   async getExpiringVotes(period: number) {
     try {
       period = Number(period);
       const expiringVotes = await this.voteService.getExpiring(period);
 
+      const userTimeZone = 5 * 60; // TODO: Store and get TimeZone offset in minutes from user table
       const response = expiringVotes.map((vote) => {
         return {
           id: vote.id,
@@ -226,7 +230,9 @@ export class TelegramService {
             }
             return result;
           }, []),
-          endDate: vote.endDate.toISOString(),
+          endDate: new Date(
+            vote.endDate.getTime() + userTimeZone * 60 * 1000,
+          ).toISOString(),
         };
       });
 
