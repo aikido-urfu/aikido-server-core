@@ -105,7 +105,7 @@ export class TelegramService {
         body: JSON.stringify({
           id: refMessage.vote.id,
           title: refMessage.vote.title,
-          tgUserIds: tgUserIds,
+          tgUserIds: [tgUserIds],
           // message: refMessage.text,
           // messageAuthor: refMessage.userId, // TODO: Get userName
           // messageDate: refMessage.creationDate.toISOString, // TODO: TZ related

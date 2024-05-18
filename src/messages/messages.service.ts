@@ -21,25 +21,20 @@ export class MessagesService {
   ) {}
 
   async create(createMessageDto: CreateMessageDto, userId: number) {
+    const referencedComment = await this.repository.findOne({
+      where: {
+        id: createMessageDto.refComId,
+      },
+      relations: ['vote'],
+    });
+
     if (createMessageDto.isRef) {
-      if (
-        !this.repository.findOne({
-          where: {
-            id: createMessageDto.refComId,
-          },
-        })
-      ) {
+      if (!referencedComment) {
         throw new NotFoundException(
           'Комментарий, на который Вы ссылаетесь, не найден',
         );
       } else {
-        const mesRef = this.repository.findOne({
-          where: {
-            id: createMessageDto.refComId,
-          },
-          relations: ['vote'],
-        });
-        if ((await mesRef).vote.id != createMessageDto.voteId) {
+        if (referencedComment.vote.id != createMessageDto.voteId) {
           throw new ForbiddenException(
             'Комментарий, на который Вы ссылаетесь, принадлежит другому обсуждению',
           );
@@ -60,16 +55,17 @@ export class MessagesService {
       await this.repository.save(newMessage);
 
       if (newMessage.isRef) {
-        const referenced = await this.repository.findOneBy({
-          id: newMessage.refComId,
-        });
         try {
-          let refRefs = referenced.references;
+          let refRefs = referencedComment.references;
           refRefs.push(+newMessage.id);
-          await this.repository.save({ ...referenced, references: refRefs });
+          await this.repository.save({
+            ...referencedComment,
+            references: refRefs,
+          });
+
           await this.telegramService.postDiscussionAnswer(
             newMessage,
-            referenced,
+            referencedComment,
           );
         } catch (error) {
           throw new ForbiddenException(error);
