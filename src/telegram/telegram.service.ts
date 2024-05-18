@@ -19,12 +19,13 @@ import { Vote } from 'src/votes/entities/vote.entity';
 import { createHash, randomBytes } from 'crypto';
 import { VotesService } from 'src/votes/votes.service';
 import { GetExpiredVotes } from './types';
+import { Message } from 'src/messages/entities/message.entity';
 
 @Injectable()
 export class TelegramService {
   private headers = {
     'Content-Type': 'application/json',
-    Authorization: 'Bearer ' + process.env.TG_AUTH_TOKEN,
+    Authorization: 'Bearer ' + process.env.TG_AUTH_TOKEN, // TODO: Create proper authorization
   };
   private readonly tokens = new Map<string, number>();
 
@@ -35,6 +36,7 @@ export class TelegramService {
     private voteService: VotesService,
   ) {}
 
+  // TODO: Create token expiration (via new Token service?)
   generateToken(userId: number): string {
     const token = randomBytes(16).toString('hex');
     this.tokens.set(token, userId);
@@ -83,18 +85,30 @@ export class TelegramService {
     }
   }
 
-  async postDiscussionAnswer(
-    voteName: string,
-    userId: string,
-    message: string,
-  ) {
+  async postDiscussionAnswer(refMessage: Message, referencedComment: Message) {
     try {
+      const user = await this.usersService.findById(referencedComment.userId);
+      const tgUserIds = user.telegramUserID;
+
+      // if (user.id == refMessage.userId) {
+      //   // console.log('Answer from messageAuthor');
+      //   return;
+      // }
+
+      if (!tgUserIds) {
+        console.log('No tg users to notify');
+        return;
+      }
+
       const response = await fetch(Telegram_URL + 'discussion/answer', {
         method: 'POST',
         body: JSON.stringify({
-          voteName: voteName,
-          userId: userId,
-          message: message,
+          id: refMessage.vote.id,
+          title: refMessage.vote.title,
+          tgUserIds: tgUserIds,
+          // message: refMessage.text,
+          // messageAuthor: refMessage.userId, // TODO: Get userName
+          // messageDate: refMessage.creationDate.toISOString, // TODO: TZ related
         }),
         headers: this.headers,
       });
