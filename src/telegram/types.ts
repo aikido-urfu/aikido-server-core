@@ -55,3 +55,73 @@ export const Token = {
     },
   },
 };
+
+export const ExpiredPeriod = {
+  schema: {
+    type: 'object',
+    properties: {
+      period: {
+        type: 'number',
+      },
+    },
+  },
+};
+
+export const GetExpiredVotes = {
+  schema: {
+    type: 'object',
+    propetries: {
+      votes: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'number',
+            },
+            title: {
+              type: 'string',
+            },
+            tgUserIds: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export const GetExpiringVotes = {
+  schema: {
+    type: 'object',
+    propetries: {
+      votes: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'number',
+            },
+            title: {
+              type: 'string',
+            },
+            tgUserIds: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+            endDate: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+  },
+};

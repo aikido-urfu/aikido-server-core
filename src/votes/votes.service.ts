@@ -6,10 +6,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import {
+  DeepPartial,
+  Repository,
+  LessThan,
+  MoreThanOrEqual,
+  And,
+  IsNull,
+  Not,
+} from 'typeorm';
 import { CreateVoteDto } from './dto/create-vote.dto';
 import { UpdateVoteDto } from './dto/update-vote.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, Repository } from 'typeorm';
 import { Vote } from './entities/vote.entity';
 import { QuestionsService } from 'src/questions/questions.service';
 import { User } from 'src/users/entities/user.entity';
@@ -286,16 +294,16 @@ export class VotesService {
       }
 
       let references = [];
-  
+
       if (message.references.length > 0) {
         for (const id of message.references) {
           references.push(await formMessageRecursive(messages.find((m) => m.id == id), us, ms));
         }
       }
-  
+
       let newMes = {
         id: message.id,
-        text: message.text, 
+        text: message.text,
         creationDate: message.creationDate,
         userId: message.userId,
         userName: (await us.findById(message.userId)).fullName,
@@ -303,10 +311,61 @@ export class VotesService {
         refComId: message.isRef ? message.refComId : null,
         refUserId: message.isRef ? refUser.id : null,
         refUserName: message.isRef ? refUser.fullName : null,
-        references: references
+        references: references,
       };
 
       return newMes;
+    }
+  }
+
+  // expired = endDate >= (cur - 3h) && endDate < (cur)
+  // period in seconds (10800 = 3h)
+  async getExpired(period: number = 10800) {
+    try {
+      if (!period) {
+        period = 10800;
+      }
+      const currentDate = new Date();
+      const startTime = new Date(currentDate.getTime() - period * 1000);
+      const votes = await this.repository.find({
+        relations: ['respondents'],
+        where: {
+          endDate: And(MoreThanOrEqual(startTime), LessThan(currentDate)),
+          respondents: {
+            telegramUserID: Not(IsNull()),
+          },
+        },
+      });
+
+      return votes;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
+  // expiring = endDate >= (cur + 24h - 3h) && endDate < (cur + 24h)
+  async getExpiring(period: number = 10800) {
+    try {
+      if (!period) {
+        period = 10800;
+      }
+      const day = 86400; // 24h
+      const currentDate = new Date();
+      const startTime = new Date(currentDate.getTime() + (day - period) * 1000);
+      const endTime = new Date(currentDate.getTime() + day * 1000);
+      const votes = await this.repository.find({
+        relations: ['respondents'],
+        where: {
+          endDate: And(MoreThanOrEqual(startTime), LessThan(endTime)),
+          respondents: {
+            telegramUserID: Not(IsNull()),
+          },
+        },
+      });
+
+      return votes;
+    } catch (error) {
+      throw new ForbiddenException(error);
     }
   }
 

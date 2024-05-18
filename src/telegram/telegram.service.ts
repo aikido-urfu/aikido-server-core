@@ -17,20 +17,26 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { And, Repository } from 'typeorm';
 import { Vote } from 'src/votes/entities/vote.entity';
 import { createHash, randomBytes } from 'crypto';
+import { VotesService } from 'src/votes/votes.service';
+import { GetExpiredVotes } from './types';
+import { Message } from 'src/messages/entities/message.entity';
 
 @Injectable()
 export class TelegramService {
   private headers = {
     'Content-Type': 'application/json',
-    Authorization: 'Bearer ' + process.env.TG_AUTH_TOKEN,
+    Authorization: 'Bearer ' + process.env.TG_AUTH_TOKEN, // TODO: Create proper authorization
   };
   private readonly tokens = new Map<string, number>();
 
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
+    @Inject(forwardRef(() => VotesService))
+    private voteService: VotesService,
   ) {}
 
+  // TODO: Create token expiration (via new Token service?)
   generateToken(userId: number): string {
     const token = randomBytes(16).toString('hex');
     this.tokens.set(token, userId);
@@ -79,18 +85,30 @@ export class TelegramService {
     }
   }
 
-  async postDiscussionAnswer(
-    voteName: string,
-    userId: string,
-    message: string,
-  ) {
+  async postDiscussionAnswer(refMessage: Message, referencedComment: Message) {
     try {
+      const user = await this.usersService.findById(referencedComment.userId);
+      const tgUserIds = user.telegramUserID;
+
+      // if (user.id == refMessage.userId) {
+      //   // console.log('Answer from messageAuthor');
+      //   return;
+      // }
+
+      if (!tgUserIds) {
+        console.log('No tg users to notify');
+        return;
+      }
+
       const response = await fetch(Telegram_URL + 'discussion/answer', {
         method: 'POST',
         body: JSON.stringify({
-          voteName: voteName,
-          userId: userId,
-          message: message,
+          id: referencedComment.vote.id,
+          title: referencedComment.vote.title,
+          tgUserIds: [tgUserIds],
+          // message: refMessage.text,
+          // messageAuthor: refMessage.userId, // TODO: Get userName
+          // messageDate: refMessage.creationDate.toISOString, // TODO: TZ related
         }),
         headers: this.headers,
       });
@@ -180,6 +198,67 @@ export class TelegramService {
 
   async getToken(userId: number) {
     return { token: this.generateToken(userId) };
+  }
+
+  async getExpiredVotes(period: number) {
+    try {
+      period = Number(period);
+      const expiredVotes = await this.voteService.getExpired(period);
+
+      const response = expiredVotes.map((vote) => {
+        return {
+          id: vote.id,
+          title: vote.title,
+          tgUserIds: vote.respondents.map((user) => user.telegramUserID),
+        };
+      });
+
+      return { votes: response };
+    } catch (error) {
+      if (error! instanceof InternalServerErrorException) {
+        throw error;
+      } else {
+        console.log(error);
+        throw new InternalServerErrorException(error);
+      }
+    }
+  }
+
+  // TODO: https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
+  // TODO: https://stackoverflow.com/questions/1091372/getting-the-clients-time-zone-and-offset-in-javascript
+  // TODO: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  // Get votes, which will end in less than 24h, and become this in past 3 hours
+  async getExpiringVotes(period: number) {
+    try {
+      period = Number(period);
+      const expiringVotes = await this.voteService.getExpiring(period);
+
+      const userTimeZone = 5 * 60; // TODO: Store and get TimeZone offset in minutes from user table
+      const response = expiringVotes.map((vote) => {
+        return {
+          id: vote.id,
+          title: vote.title,
+          tgUserIds: vote.respondents.reduce(function (result, user) {
+            if (!vote.usersVoted.includes(user.id)) {
+              result.push(user.telegramUserID);
+            }
+            return result;
+          }, []),
+          endDate: new Date(
+            vote.endDate.getTime() + userTimeZone * 60 * 1000,
+          ).toISOString(),
+        };
+      });
+
+      return { votes: response };
+    } catch (error) {
+      if (error! instanceof InternalServerErrorException) {
+        throw error;
+      } else {
+        console.log(error);
+        throw new InternalServerErrorException(error);
+      }
+    }
   }
 
   async create(createTelegramDto: CreateTelegramDto) {
