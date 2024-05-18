@@ -22,6 +22,16 @@ export class MessagesService {
         }
       })) {
         throw new NotFoundException("Комментарий, на который Вы ссылаетесь, не найден");
+      } else {
+        const mesRef = this.repository.findOne({
+          where: {
+            id: createMessageDto.refComId
+          },
+          relations: ['vote']
+        });
+        if ((await mesRef).vote.id != createMessageDto.voteId) {
+          throw new ForbiddenException("Комментарий, на который Вы ссылаетесь, принадлежит другому обсуждению");
+        }
       }
     }
     
@@ -34,10 +44,21 @@ export class MessagesService {
         refComId: createMessageDto.isRef ? createMessageDto.refComId : null,
       }
 
-      console.log(message);
-
       const newMessage = await this.repository.create(message);
       await this.repository.save(newMessage);
+      
+      if (newMessage.isRef) {
+        const referenced = await this.repository.findOneBy({
+            id: newMessage.refComId
+          });
+        try {
+          let refRefs = referenced.references;
+          refRefs.push(+newMessage.id);
+          await this.repository.save({...referenced, references: refRefs});
+        } catch (error) {
+          throw new ForbiddenException(error);
+        }
+      }
     } catch (error) {
       throw new ForbiddenException(error);
     }

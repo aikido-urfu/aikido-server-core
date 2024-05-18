@@ -28,6 +28,8 @@ import { FilesService } from 'src/files/files.service';
 import { TelegramService } from 'src/telegram/telegram.service';
 import { MessagesService } from '../messages/messages.service';
 import { CreateMessageDto } from 'src/messages/dto/create-message.dto';
+import { Message } from '../messages/entities/message.entity';
+import { roles } from '../tools/roles';
 
 @Injectable()
 export class VotesService {
@@ -67,7 +69,7 @@ export class VotesService {
       for (let id of respondents) {
         let foundUser = await this.usersService.findById(id);
         // let foundUser = id as DeepPartial<User>;
-        if ((await this.usersService.findById(userId)).role < foundUser.role) {
+        if (roles[(await this.usersService.findById(userId)).role] < roles[foundUser.role]) {
           throw new ForbiddenException(
             `Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`,
           );
@@ -260,7 +262,7 @@ export class VotesService {
   }
 
   async getMessages(id: number) {
-    const vote = await this.repository.findOne({
+    let vote = await this.repository.findOne({
       where: { id },
       relations: ['creator', 'messages'],
     });
@@ -269,35 +271,50 @@ export class VotesService {
       throw new NotFoundException('Обсуждение не найдено');
     }
 
-    const result = [];
+    let result = [];
+
+    let messages = vote.messages;
+    let rootMessages = vote.messages.filter((x) => x.isRef == false);
 
     try {
-      for (let message of vote.messages) {
-        let refUser;
-        if (message.isRef) {
-          refUser = await this.usersService.findById(
-            (await this.messagesService.findOne(message.refComId)).userId,
-          );
-        }
-
-        const newMes = {
-          id: message.id,
-          text: message.text,
-          creationDate: message.creationDate,
-          userId: message.userId,
-          userName: (await this.usersService.findById(message.userId)).fullName,
-          isRef: message.isRef,
-          refComId: message.isRef ? message.refComId : null,
-          refUserId: message.isRef ? refUser.id : null,
-          refUserName: message.isRef ? refUser.fullName : null,
-        };
-
-        result.push(newMes);
+      for (let message of rootMessages) {
+        result.push(await formMessageRecursive(message, this.usersService, this.messagesService));
       }
 
       return { messages: result };
     } catch (error) {
       throw new ForbiddenException(error);
+    }
+
+    async function formMessageRecursive(message: Message, us: UsersService, ms: MessagesService) {
+      let refUser;
+
+      if (message.isRef) {
+        refUser = await us.findById((await ms.findOne(message.refComId)).userId);
+      }
+
+      let references = [];
+  
+      if (message.references.length > 0) {
+        for (const id of message.references) {
+          references.push(await formMessageRecursive(messages.find((m) => m.id == id), us, ms));
+        }
+      }
+  
+      let newMes = {
+        id: message.id,
+        text: message.text, 
+        creationDate: message.creationDate,
+        userId: message.userId,
+        userName: (await us.findById(message.userId)).fullName,
+        isRef: message.isRef,
+        refComId: message.isRef ? message.refComId : null,
+        refUserId: message.isRef ? refUser.id : null,
+        refUserName: message.isRef ? refUser.fullName : null,
+        references: references
+      };
+
+      return newMes;
     }
   }
 

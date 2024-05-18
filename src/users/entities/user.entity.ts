@@ -24,7 +24,7 @@ export class User {
   fullName: string;
 
   @Column()
-  role: number;
+  role: string;
 
   @ManyToOne(() => Group, (group) => group.users)
   group?: Group;
