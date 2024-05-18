@@ -103,8 +103,8 @@ export class TelegramService {
       const response = await fetch(Telegram_URL + 'discussion/answer', {
         method: 'POST',
         body: JSON.stringify({
-          id: refMessage.vote.id,
-          title: refMessage.vote.title,
+          id: referencedComment.vote.id,
+          title: referencedComment.vote.title,
           tgUserIds: [tgUserIds],
           // message: refMessage.text,
           // messageAuthor: refMessage.userId, // TODO: Get userName
