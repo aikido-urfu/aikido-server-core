@@ -156,9 +156,12 @@ export class UsersService {
 
       const result = [];
       const now = new Date();
+      
 
       for (let vote of user.assigned) {
-        result.push({...vote, isActive: vote.endDate > now && now > vote.startDate})
+        const isActive = vote.endDate > now && now > vote.startDate;
+        const isVoted = Boolean(vote.usersVoted.find((x) => x == id));
+        result.push({...vote, isActive, isVoted})
       }
 
       return { votes: result.reverse() };
