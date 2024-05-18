@@ -161,7 +161,7 @@ export class UsersService {
         result.push({...vote, isActive: vote.endDate > now && now > vote.startDate})
       }
 
-      return { votes: result.reverse };
+      return { votes: result.reverse() };
       // return { votes: user.assigned.reverse };
     } catch (error) {
       throw new ForbiddenException(error);
