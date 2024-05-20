@@ -17,6 +17,7 @@ import { GroupsModule } from './groups/groups.module';
 import { Group } from './groups/entities/group.entity';
 import { MessagesModule } from './messages/messages.module';
 import { Message } from './messages/entities/message.entity';
+import * as fs from 'fs';
 
 @Module({
   imports: [
@@ -36,6 +37,10 @@ import { Message } from './messages/entities/message.entity';
       database: process.env.DB_NAME,
       entities: [User, Vote, Questions, Answers, Files, Group, Message],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: true,
+        ca: fs.readFileSync('./root.crt').toString(),
+      },
     }),
     MessagesModule,
   ],
