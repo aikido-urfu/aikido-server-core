@@ -15,6 +15,8 @@ export class Answers {
   @Column('integer', { array: true, default: [] })
   users?: number[];
 
-  @ManyToOne(() => Questions, (questions) => questions.answers)
+  @ManyToOne(() => Questions, (questions) => questions.answers, {
+    cascade: true, onDelete: 'CASCADE'
+  })
   questions: Questions;
 }
