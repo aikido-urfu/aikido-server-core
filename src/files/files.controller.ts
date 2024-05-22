@@ -79,6 +79,6 @@ export class FilesController {
     );
     // const url = Files_URL + 'uploads/' + photo.filename;
 
-    return { fileUrl };
+    return { url: fileUrl };
   }
 }
