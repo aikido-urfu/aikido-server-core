@@ -369,40 +369,9 @@ export class VotesService {
     }
   }
 
-  async update(id: number, updateVoteDto: UpdateVoteDto) {
-    const {
-      title,
-      isAnonymous,
-      isHidenCount,
-      questions,
-      description,
-      startDate,
-      endDate,
-      respondents,
-      files,
-      photos,
-    } = updateVoteDto;
-
-    if (!id || !title || !questions || !questions.length) {
-      throw new ForbiddenException('Отсутсвуют необходимые поля');
-    }
-
-    let usersResp = [];
-
-    for (let id of respondents) {
-      usersResp.push(id as DeepPartial<User>);
-    }
-
+  async update(id: number, title: string) {
     const voteData = {
       title,
-      description,
-      startDate,
-      endDate,
-      isAnonymous: isAnonymous ?? true,
-      isHidenCount: isHidenCount ?? false,
-      respondents: usersResp,
-      files,
-      photos,
     };
 
     try {

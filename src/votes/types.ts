@@ -404,3 +404,14 @@ export const PatchVote = {
     },
   },
 };
+
+export const PatchVoteTemp = {
+  schema: {
+    type: 'object',
+    properties: {
+      title: {
+        type: 'string',
+      },
+    },
+  },
+};
