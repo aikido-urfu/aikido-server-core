@@ -15,7 +15,9 @@ export class Message {
   @Column()
   text: string;
 
-  @ManyToOne(() => Vote, (vote) => vote.messages)
+  @ManyToOne(() => Vote, (vote) => vote.messages, {
+    cascade: true, onDelete: 'CASCADE'
+  })
   vote: Vote;
 
   @CreateDateColumn({ type: 'timestamptz' })

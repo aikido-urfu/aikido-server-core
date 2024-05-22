@@ -461,14 +461,13 @@ export class VotesService {
     try {
       const vote = await this.repository.findOne({
         where: { id },
-        relations: ['user'],
+        relations: ['creator'],
       });
 
       if (Number(vote.creator.id) !== userId) {
         throw new ForbiddenException('Недостаточно прав');
       }
 
-      await this.questionsService.delete(id);
       await this.repository.delete(id);
     } catch (error) {
       throw new ForbiddenException('Такого id не существует');
