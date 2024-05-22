@@ -2,6 +2,8 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { generateId } from './storage';
 import { join } from 'path';
 import * as fs from 'fs';
+import { PutObjectCommand, CreateBucketCommand } from '@aws-sdk/client-s3';
+import { s3Client } from './s3';
 
 export const saveFile = (body) => {
   const { file, name, type } = body;
@@ -19,6 +21,9 @@ export const saveFile = (body) => {
   const ext = name.slice(name.lastIndexOf('.'));
   const newName = generateId() + ext;
   const uploadPath = join(process.cwd(), 'uploads', newName);
+
+
+
   fs.writeFile(uploadPath, buffer, (err) => {
     if (err) {
       // Обрабатываете ошибку

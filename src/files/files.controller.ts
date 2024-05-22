@@ -10,6 +10,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/decorators/user-id.decorator';
 import Multer from 'multer';
+import * as multer from 'multer';
 import { fileStorage } from 'src/tools/storage';
 import { Files_URL } from 'API_URL';
 
@@ -53,7 +54,7 @@ export class FilesController {
   @Post('photo')
   @UseInterceptors(
     FileInterceptor('photo', {
-      storage: fileStorage,
+      storage: multer.memoryStorage(),
     }),
   )
   @ApiConsumes('multipart/form-data')
@@ -72,8 +73,9 @@ export class FilesController {
     @UploadedFile(new ParseFilePipe({}))
     photo: Multer.File,
   ) {
-    const url = Files_URL + 'uploads/' + photo.filename;
+    return await this.fileService.saveFileOb(photo.originalname, photo.buffer);
+    // const url = Files_URL + 'uploads/' + photo.filename;
 
-    return { url };
+    // return { url };
   }
 }
