@@ -17,6 +17,7 @@ import { GroupsModule } from './groups/groups.module';
 import { Group } from './groups/entities/group.entity';
 import { MessagesModule } from './messages/messages.module';
 import { Message } from './messages/entities/message.entity';
+import fs from "fs";
 
 @Module({
   imports: [

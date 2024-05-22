@@ -28,7 +28,9 @@ export class Questions {
   @Column()
   isMultiply: boolean;
 
-  @ManyToOne(() => Vote, (vote) => vote.questions)
+  @ManyToOne(() => Vote, (vote) => vote.questions, {
+    cascade: true, onDelete: 'CASCADE'
+  })
   vote: Vote;
 
   @OneToMany(() => Questions, (question) => question.answers)
