@@ -73,9 +73,12 @@ export class FilesController {
     @UploadedFile(new ParseFilePipe({}))
     photo: Multer.File,
   ) {
-    return await this.fileService.saveFileOb(photo.originalname, photo.buffer);
+    const fileUrl = await this.fileService.saveFileOb(
+      photo.originalname,
+      photo.buffer,
+    );
     // const url = Files_URL + 'uploads/' + photo.filename;
 
-    // return { url };
+    return { fileUrl };
   }
 }
