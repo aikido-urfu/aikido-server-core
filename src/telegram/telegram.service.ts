@@ -20,6 +20,8 @@ import { createHash, randomBytes } from 'crypto';
 import { VotesService } from 'src/votes/votes.service';
 import { GetExpiredVotes } from './types';
 import { Message } from 'src/messages/entities/message.entity';
+import { s3Client } from 'src/tools/s3';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 
 @Injectable()
 export class TelegramService {
@@ -47,6 +49,25 @@ export class TelegramService {
     return this.tokens.get(token);
   }
 
+  async s3Handle(messageBody: string) {
+    let client = new SQSClient({
+      region: 'ru-central1',
+      endpoint: 'https://message-queue.api.cloud.yandex.net',
+    });
+    const command = new SendMessageCommand({
+      QueueUrl: process.env.QUEUE_URL,
+      MessageBody: messageBody,
+    });
+
+    try {
+      const response = await client.send(command);
+      return response;
+    } catch (error) {
+      console.error('Error receiving message:', error);
+      throw error;
+    }
+  }
+
   // TODO: В случае провала рассылки запустить таймер на повторную попытку через время.
   async postNewVote(vote: Vote) {
     try {
@@ -62,24 +83,34 @@ export class TelegramService {
         return;
       }
 
-      const response = await fetch(Telegram_URL + 'votes/new', {
-        method: 'POST',
-        body: JSON.stringify({
+      const response = await this.s3Handle(
+        JSON.stringify({
           id: vote.id,
           title: vote.title,
           startDate: vote.startDate.toISOString(),
           endDate: vote.endDate.toISOString(),
           tgUserIds: tgUserIds,
         }),
-        headers: this.headers,
-      });
+      );
 
-      if (!response.ok) {
-        throw new Error(
-          'Error during post message to tg bot: postNewVote - ' +
-            response.statusText,
-        );
-      }
+      // const response = await fetch(Telegram_URL + 'votes/new', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     id: vote.id,
+      //     title: vote.title,
+      //     startDate: vote.startDate.toISOString(),
+      //     endDate: vote.endDate.toISOString(),
+      //     tgUserIds: tgUserIds,
+      //   }),
+      //   headers: this.headers,
+      // });
+
+      // if (!response.ok) {
+      //   throw new Error(
+      //     'Error during post message to tg bot: postNewVote - ' +
+      //       response.statusText,
+      //   );
+      // }
     } catch (error) {
       console.log(error);
     }
