@@ -43,7 +43,7 @@ export class FilesController {
 
     const savedFile = await this.fileService.saveFile({
       url,
-      name: file.originalname,
+      name: Buffer.from(file.originalname, 'latin1').toString('utf8'),
       type: file.mimetype,
     });
 

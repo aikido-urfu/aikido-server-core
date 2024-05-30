@@ -94,11 +94,59 @@ export class MessagesService {
     return message;
   }
 
-  update(id: number, updateMessageDto: UpdateMessageDto) {
-    return `This action updates a #${id} message`;
+  // update(id: number, updateMessageDto: UpdateMessageDto) {
+  //   return `This action updates a #${id} message`;
+  // }
+
+  async remove(id: number, userId: number) {
+    const message = await this.repository.findOne({
+      where: {
+        id: id,
+      },});
+
+    if (!message) {
+      throw new NotFoundException('Комментарий не найден');
+    }
+
+    if (message.userId != userId) {
+      throw new ForbiddenException('Вы не можете удалить чужой комментарий');
+    }
+
+    if (message.isRef) {
+      const refMessage = await this.repository.findOne({
+        where: {
+          id: message.refComId,
+        }});
+
+      console.log(refMessage)
+      
+      refMessage.references.splice(refMessage.references.indexOf(+id))
+      this.repository.update(refMessage.id, { references: refMessage.references });
+    }
+
+    try {
+      this.removeRecursive(id);
+      this.repository.delete(id);
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} message`;
+  async removeRecursive(id: number) {
+    try {
+      const message = await this.repository.findOne({
+        where: {id: id}});
+      
+      if (message.references.length > 0) {
+        for (let m of message.references) {
+          this.removeRecursive(m);
+        }
+      }
+      else {
+        this.repository.delete(id);
+      }
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 }

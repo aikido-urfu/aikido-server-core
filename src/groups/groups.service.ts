@@ -44,6 +44,24 @@ export class GroupsService {
     }
   }
 
+  async findAllWithoutUsers() {
+    try {
+      const groups = await this.repository.find();
+      const response = [];
+
+      for (const group of groups) {
+        response.push({
+          id: group.id,
+          name: group.name,
+        });
+      }
+
+      return { groups: response };
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+  }
+
   async findOne(id: number) {
     try {
       const group = await this.repository.findOne({
@@ -52,12 +70,7 @@ export class GroupsService {
       });
 
       const response = [];
-
-      response.push({
-        id: group.id,
-        name: group.name,
-        users: group.users,
-      });
+      response.push(group.id);
 
       return { groups: response };
     } catch (error) {

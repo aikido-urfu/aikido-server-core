@@ -23,7 +23,6 @@ import { QuestionsService } from 'src/questions/questions.service';
 import { User } from 'src/users/entities/user.entity';
 import { AnswersService } from 'src/answers/answers.service';
 import { UsersService } from 'src/users/users.service';
-import { saveFile } from 'src/tools/saveFile';
 import { FilesService } from 'src/files/files.service';
 import { TelegramService } from 'src/telegram/telegram.service';
 import { MessagesService } from '../messages/messages.service';
@@ -263,63 +262,6 @@ export class VotesService {
     }
   }
 
-  async getMessages(id: number) {
-    let vote = await this.repository.findOne({
-      where: { id },
-      relations: ['creator', 'messages'],
-    });
-
-    if (!vote) {
-      throw new NotFoundException('Обсуждение не найдено');
-    }
-
-    let result = [];
-
-    let messages = vote.messages;
-    let rootMessages = vote.messages.filter((x) => x.isRef == false);
-
-    try {
-      for (let message of rootMessages) {
-        result.push(await formMessageRecursive(message, this.usersService, this.messagesService));
-      }
-
-      return { messages: result };
-    } catch (error) {
-      throw new ForbiddenException(error);
-    }
-
-    async function formMessageRecursive(message: Message, us: UsersService, ms: MessagesService) {
-      let refUser;
-
-      if (message.isRef) {
-        refUser = await us.findById((await ms.findOne(message.refComId)).userId);
-      }
-
-      let references = [];
-
-      if (message.references.length > 0) {
-        for (const id of message.references) {
-          references.push(await formMessageRecursive(messages.find((m) => m.id == id), us, ms));
-        }
-      }
-
-      let newMes = {
-        id: message.id,
-        text: message.text,
-        creationDate: message.creationDate,
-        userId: message.userId,
-        userName: (await us.findById(message.userId)).fullName,
-        isRef: message.isRef,
-        refComId: message.isRef ? message.refComId : null,
-        refUserId: message.isRef ? refUser.id : null,
-        refUserName: message.isRef ? refUser.fullName : null,
-        references: references,
-      };
-
-      return newMes;
-    }
-  }
-
   // expired = endDate >= (cur - 3h) && endDate < (cur)
   // period in seconds (10800 = 3h)
   async getExpired(period: number = 10800) {
@@ -473,6 +415,65 @@ export class VotesService {
       await this.repository.delete(id);
     } catch (error) {
       throw new ForbiddenException('Такого id не существует');
+    }
+  }
+
+//Messages
+
+  async getMessages(id: number) {
+    let vote = await this.repository.findOne({
+      where: { id },
+      relations: ['creator', 'messages'],
+    });
+
+    if (!vote) {
+      throw new NotFoundException('Обсуждение не найдено');
+    }
+
+    let result = [];
+
+    let messages = vote.messages;
+    let rootMessages = vote.messages.filter((x) => x.isRef == false);
+
+    try {
+      for (let message of rootMessages) {
+        result.push(await formMessageRecursive(message, this.usersService, this.messagesService));
+      }
+
+      return { messages: result };
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
+
+    async function formMessageRecursive(message: Message, us: UsersService, ms: MessagesService) {
+      let refUser;
+
+      if (message.isRef) {
+        refUser = await us.findById((await ms.findOne(message.refComId)).userId);
+      }
+
+      let references = [];
+
+      if (message.references.length > 0) {
+        for (const id of message.references) {
+          references.push(await formMessageRecursive(messages.find((m) => m.id == id), us, ms));
+        }
+      }
+
+      let newMes = {
+        id: message.id,
+        text: message.text,
+        creationDate: message.creationDate,
+        userId: message.userId,
+        userName: (await us.findById(message.userId)).fullName,
+        isRef: message.isRef,
+        refComId: message.isRef ? message.refComId : null,
+        refUserId: message.isRef ? refUser.id : null,
+        refUserName: message.isRef ? refUser.fullName : null,
+        references: references,
+      };
+
+      return newMes;
     }
   }
 }

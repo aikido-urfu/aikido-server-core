@@ -14,5 +14,5 @@ const normalizeFileName = (req, file, callback) => {
 
 export const fileStorage = diskStorage({
   destination: './uploads',
-  filename: normalizeFileName,
+  // filename: normalizeFileName,
 });

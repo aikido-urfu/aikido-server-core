@@ -35,8 +35,9 @@ export class MessagesController {
   //   return this.messagesService.update(+id, updateMessageDto);
   // }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.messagesService.remove(+id);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  remove(@UserId() userId, @Param('id') id: string) {
+    return this.messagesService.remove(+id, +userId);
+  }
 }

@@ -12,7 +12,6 @@ import { User } from './entities/user.entity';
 import { GroupsService } from '../groups/groups.service';
 import { Group } from 'src/groups/entities/group.entity';
 import { roles } from 'src/tools/roles';
-import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class UsersService {

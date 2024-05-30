@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Questions } from './entities/questions.entity';
 import { AnswersService } from 'src/answers/answers.service';
-import { saveFile } from 'src/tools/saveFile';
 
 @Injectable()
 export class QuestionsService {
