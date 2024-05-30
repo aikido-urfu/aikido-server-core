@@ -47,7 +47,12 @@ export class FilesController {
       type: file.mimetype,
     });
 
-    return savedFile;
+    return {
+      id: savedFile.id,
+      url: url,
+      name: savedFile.name,
+      type: savedFile.type
+    };
   }
 
   @Post('photo')

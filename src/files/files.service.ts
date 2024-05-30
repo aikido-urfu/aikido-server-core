@@ -17,6 +17,12 @@ export class FilesService {
   async getById(id) {
     const file = await this.repository.findOne({ where: { id } });
 
-    return file;
+    return {url: file.url, name: file.name};
+  }
+
+  async getByURL(url) {
+    const file = await this.repository.findOneBy({ url });
+
+    return {url: file.url, name: file.name};
   }
 }

@@ -195,6 +195,7 @@ export class VotesService {
         id: vote.creator.id,
         email: vote.creator.email,
         fullName: vote.creator.fullName,
+        role: vote.creator.role,
         phone: vote.creator.phone,
         photo: vote.creator.photo,
       };
@@ -241,6 +242,7 @@ export class VotesService {
         users.push({
           id: user.id,
           fullName: user.fullName,
+          role: user.role,
           photo: user.photo,
           email: user.emaiL,
         });

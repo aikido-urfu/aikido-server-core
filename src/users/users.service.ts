@@ -9,11 +9,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { saveFile } from 'src/tools/saveFile';
-import { NotFoundError } from 'rxjs';
 import { GroupsService } from '../groups/groups.service';
 import { Group } from 'src/groups/entities/group.entity';
 import { roles } from 'src/tools/roles';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class UsersService {
@@ -157,7 +156,6 @@ export class UsersService {
       const result = [];
       const now = new Date();
       
-
       for (let vote of user.assigned) {
         const isActive = vote.endDate > now && now > vote.startDate;
         const isVoted = Boolean(vote.usersVoted.find((x) => x == id));
