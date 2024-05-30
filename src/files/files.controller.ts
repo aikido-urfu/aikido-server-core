@@ -1,7 +1,13 @@
 import {
+  Body,
   Controller,
+  Get,
+  Param,
   ParseFilePipe,
   Post,
+  Req,
+  Res,
+  StreamableFile,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -11,7 +17,10 @@ import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/decorators/user-id.decorator';
 import Multer from 'multer';
 import { fileStorage } from 'src/tools/storage';
-import { Files_URL } from 'API_URL';
+import { Files_URL, Server_URL } from 'API_URL';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { Response } from 'express';
 
 @Controller('files')
 export class FilesController {
@@ -39,7 +48,7 @@ export class FilesController {
     @UploadedFile(new ParseFilePipe({}))
     file: Multer.File,
   ) {
-    const url = Files_URL + 'uploads/' + file.filename;
+    const url = Server_URL + 'files/' + file.filename;
 
     const savedFile = await this.fileService.saveFile({
       url,
@@ -77,8 +86,22 @@ export class FilesController {
     @UploadedFile(new ParseFilePipe({}))
     photo: Multer.File,
   ) {
-    const url = Files_URL + 'uploads/' + photo.filename;
+    const url = Server_URL + 'files/' + photo.filename;
 
     return { url };
+  }
+
+  @Get('/:name')
+  async getFile(@Param('name') name: string, @Res() res: Response) {
+    const fileInfo = await this.fileService.getByURL(`http://localhost:3005/files/${name}`);
+    console.log(fileInfo);
+    if (!fileInfo) {
+      res.send(readFileSync(join(process.cwd(), `/uploads/${name}`)));
+    }
+    else {
+      const file = readFileSync(join(process.cwd(), `/uploads/${name}`));
+      res.attachment(fileInfo.name);
+      res.send(file);
+    }
   }
 }
