@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -35,7 +35,17 @@ export class GroupsService {
         response.push({
           id: group.id,
           name: group.name,
-          users: group.users,
+          users: group.users.map((x) => {
+            return {
+              id: x.id,
+              email: x.email,
+              fullName: x.fullName,
+              role: x.role,
+              phone: x.phone,
+              photo: x.photo,
+              telegramUserID: x.telegramUserID
+            }
+          })
         });
       }
       return { groups: response };
@@ -69,10 +79,26 @@ export class GroupsService {
         relations: ['users'],
       });
 
-      const response = [];
-      response.push(group.id);
-
-      return { groups: response };
+      if (group) {
+        return {
+          id: group.id,
+          name: group.name,
+          users: group.users.map((x) => {
+            return {
+              id: x.id,
+              email: x.email,
+              fullName: x.fullName,
+              role: x.role,
+              phone: x.phone,
+              photo: x.photo,
+              telegramUserID: x.telegramUserID
+            }
+          })
+        };
+      }
+      else {
+        throw new NotFoundException('Группа не найдена');
+      }
     } catch (error) {
       throw new ForbiddenException(error);
     }

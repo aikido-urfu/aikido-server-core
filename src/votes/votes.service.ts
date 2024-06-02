@@ -29,6 +29,7 @@ import { MessagesService } from '../messages/messages.service';
 import { CreateMessageDto } from 'src/messages/dto/create-message.dto';
 import { Message } from '../messages/entities/message.entity';
 import { roles } from '../tools/roles';
+import { GroupsService } from '../groups/groups.service';
 
 @Injectable()
 export class VotesService {
@@ -42,6 +43,7 @@ export class VotesService {
     private answersService: AnswersService,
     private filesService: FilesService,
     private messagesService: MessagesService,
+    private groupsService: GroupsService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
@@ -55,25 +57,53 @@ export class VotesService {
         startDate,
         endDate,
         respondents,
+        groups,
         files,
         photos,
       } = createVoteDto;
+
+      const activeUser = await this.usersService.findById(userId);
 
       if (!userId || !title || !questions || !questions.length) {
         throw new ForbiddenException('Отсутсвуют необходимые поля');
       }
 
       let usersResp = [];
+      let attachedGroups = [];
 
-      for (let id of respondents) {
-        let foundUser = await this.usersService.findById(id);
+      for (const id of respondents) {
+        const foundUser = await this.usersService.findById(id);
         // let foundUser = id as DeepPartial<User>;
-        if (roles[(await this.usersService.findById(userId)).role] < roles[foundUser.role]) {
+        if (roles[activeUser.role] < roles[foundUser.role]) {
           throw new ForbiddenException(
             `Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`,
           );
         }
         usersResp.push(foundUser);
+      }
+
+      for (const groupId of groups) {
+        let newGroup = await this.groupsService.findOne(groupId);
+        let shortUsers = [];
+
+        for (const user of newGroup.users) {
+          shortUsers.push({
+            id: user.id,
+            fullName: user.fullName,
+            role: user.role,
+            photo: user.photo
+          });
+
+          if (usersResp.find((x) => x.id == user.id) != -1) {
+            const foundUser = await this.usersService.findById(user.id);
+            if (roles[activeUser.role] >= roles[foundUser.role]) {
+              usersResp.push(foundUser);
+            }
+          }
+        }
+
+        // newGroup.users = shortUsers;
+        attachedGroups.push(newGroup);
       }
 
       // console.log(userId as DeepPartial<User>);
@@ -89,6 +119,7 @@ export class VotesService {
         isAnonymous: isAnonymous ?? true,
         isHidenCount: isHidenCount ?? false,
         respondents: usersResp,
+        attachedGroups: attachedGroups,
         files,
         photos,
       };
@@ -181,7 +212,7 @@ export class VotesService {
     try {
       const vote = await this.repository.findOne({
         where: { id },
-        relations: ['creator', 'questions', 'respondents'],
+        relations: ['creator', 'questions', 'respondents', 'attachedGroups'],
       });
 
       const voteFiles = [];
@@ -248,10 +279,38 @@ export class VotesService {
       }
 
       const isVoted = vote.usersVoted.includes(userId);
+      let newAttachedGroups = [];
+      let userIdInGroups: number[] = [];
+
+      for (const group of vote.attachedGroups) {
+        const attachedGroup = await this.groupsService.findOne(group.id);
+
+        newAttachedGroups.push({
+          id: attachedGroup.id,
+          name: attachedGroup.name,
+          users: attachedGroup.users.map((x) => {
+            userIdInGroups.push(x.id);
+            return {
+              id: x.id,
+              fullName: x.fullName,
+              role: x.role,
+              photo: x.photo
+            }
+          })
+        });
+      }
+
+      userIdInGroups =  Array.from(new Set(userIdInGroups));
+      vote.respondents.forEach((el, index) => {
+        if (userIdInGroups.find((x) => x == el.id)) {
+          vote.respondents.splice(index);
+        }
+      })
 
       return {
         ...vote,
         files: voteFiles,
+        attachedGroups: newAttachedGroups,
         isAdmin,
         isVoted,
         usersVoted: users,

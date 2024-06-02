@@ -1,3 +1,4 @@
+import { Group } from 'src/groups/entities/group.entity';
 import { Message } from 'src/messages/entities/message.entity';
 import { Questions } from 'src/questions/entities/questions.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -39,6 +40,12 @@ export class Vote {
   })
   @JoinTable()
   respondents?: User[];
+
+  @ManyToMany(() => Group, (group) => group.assigned, {
+    cascade: true,
+  })
+  @JoinTable()
+  attachedGroups?: Group[];
 
   @Column('text', { array: true, nullable: true })
   files?: number[];
