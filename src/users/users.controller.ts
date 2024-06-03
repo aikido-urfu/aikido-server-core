@@ -54,7 +54,7 @@ export class UsersController {
   @Patch(':id/group/:groupId')
   @UseGuards(JwtAuthGuard)
   updateGroup(@Param('id') id: string, @Param('groupId') groupId: string) {
-    return this.usersService.changeGroup(+id, +groupId);
+    return this.usersService.changeGroupOne(+id, +groupId);
   }
 
   // @Delete(':id')
