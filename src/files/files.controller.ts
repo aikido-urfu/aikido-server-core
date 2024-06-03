@@ -60,7 +60,7 @@ export class FilesController {
       id: savedFile.id,
       url: url,
       name: savedFile.name,
-      type: savedFile.type
+      type: savedFile.type,
     };
   }
 
@@ -93,12 +93,13 @@ export class FilesController {
 
   @Get('/:name')
   async getFile(@Param('name') name: string, @Res() res: Response) {
-    const fileInfo = await this.fileService.getByURL(`http://localhost:3005/files/${name}`);
+    const fileInfo = await this.fileService.getByURL(
+      `${Server_URL}files/${name}`,
+    );
     console.log(fileInfo);
     if (!fileInfo) {
       res.send(readFileSync(join(process.cwd(), `/uploads/${name}`)));
-    }
-    else {
+    } else {
       const file = readFileSync(join(process.cwd(), `/uploads/${name}`));
       res.attachment(fileInfo.name);
       res.send(file);
