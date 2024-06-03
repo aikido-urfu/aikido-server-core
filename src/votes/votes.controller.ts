@@ -57,8 +57,12 @@ export class VotesController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBody(PostVote)
-  update(@Param('id') id: string, @Body() updateVoteDto: UpdateVoteDto) {
-    return this.votesService.update(+id, updateVoteDto);
+  update(
+    @Param('id') id: string,
+    @UserId() userId,
+    @Body() updateVoteDto: UpdateVoteDto,
+  ) {
+    return this.votesService.update(+id, userId, updateVoteDto);
   }
 
   @Put(':id')

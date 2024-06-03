@@ -68,7 +68,10 @@ export class VotesService {
       for (let id of respondents) {
         let foundUser = await this.usersService.findById(id);
         // let foundUser = id as DeepPartial<User>;
-        if (roles[(await this.usersService.findById(userId)).role] < roles[foundUser.role]) {
+        if (
+          roles[(await this.usersService.findById(userId)).role] <
+          roles[foundUser.role]
+        ) {
           throw new ForbiddenException(
             `Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`,
           );
@@ -313,7 +316,7 @@ export class VotesService {
     }
   }
 
-  async update(id: number, updateVoteDto: UpdateVoteDto) {
+  async update(id: number, userId: number, updateVoteDto: UpdateVoteDto) {
     const {
       title,
       isAnonymous,
@@ -331,10 +334,25 @@ export class VotesService {
       throw new ForbiddenException('Отсутсвуют необходимые поля');
     }
 
-    let usersResp = [];
+    const oldVote = await this.repository.findOne({
+      where: { id },
+      relations: ['creator'],
+    });
 
+    if (oldVote.creator.id !== userId) {
+      throw new ForbiddenException('Only creator can modify vote');
+    }
+
+    if (!startDate || !endDate || startDate >= endDate) {
+      throw new ForbiddenException(
+        'Неверно указаны даты конца и начала голосования',
+      );
+    }
+
+    let usersResp = [];
     for (let id of respondents) {
-      usersResp.push(id as DeepPartial<User>);
+      let foundUser = await this.usersService.findById(id);
+      usersResp.push(foundUser);
     }
 
     const voteData = {
@@ -350,10 +368,10 @@ export class VotesService {
     };
 
     try {
-      const oldVote = await this.repository.findOneBy({ id });
       const newVote = { ...oldVote, ...voteData };
 
       await this.repository.save(newVote);
+      await this.questionsService.save(questions, newVote.id);
     } catch (error) {
       throw new ForbiddenException(error);
     }
@@ -418,7 +436,7 @@ export class VotesService {
     }
   }
 
-//Messages
+  //Messages
 
   async getMessages(id: number) {
     let vote = await this.repository.findOne({
@@ -437,7 +455,13 @@ export class VotesService {
 
     try {
       for (let message of rootMessages) {
-        result.push(await formMessageRecursive(message, this.usersService, this.messagesService));
+        result.push(
+          await formMessageRecursive(
+            message,
+            this.usersService,
+            this.messagesService,
+          ),
+        );
       }
 
       return { messages: result };
@@ -445,18 +469,30 @@ export class VotesService {
       throw new ForbiddenException(error);
     }
 
-    async function formMessageRecursive(message: Message, us: UsersService, ms: MessagesService) {
+    async function formMessageRecursive(
+      message: Message,
+      us: UsersService,
+      ms: MessagesService,
+    ) {
       let refUser;
 
       if (message.isRef) {
-        refUser = await us.findById((await ms.findOne(message.refComId)).userId);
+        refUser = await us.findById(
+          (await ms.findOne(message.refComId)).userId,
+        );
       }
 
       let references = [];
 
       if (message.references.length > 0) {
         for (const id of message.references) {
-          references.push(await formMessageRecursive(messages.find((m) => m.id == id), us, ms));
+          references.push(
+            await formMessageRecursive(
+              messages.find((m) => m.id == id),
+              us,
+              ms,
+            ),
+          );
         }
       }
 
