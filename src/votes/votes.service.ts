@@ -336,7 +336,7 @@ export class VotesService {
 
     const oldVote = await this.repository.findOne({
       where: { id },
-      relations: ['creator'],
+      relations: ['creator', 'questions'],
     });
 
     if (oldVote.creator.id !== userId) {
@@ -371,6 +371,7 @@ export class VotesService {
       const newVote = { ...oldVote, ...voteData };
 
       await this.repository.save(newVote);
+      await this.questionsService.delete(newVote.id);
       await this.questionsService.save(questions, newVote.id);
     } catch (error) {
       throw new ForbiddenException(error);
