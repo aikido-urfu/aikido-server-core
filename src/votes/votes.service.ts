@@ -306,7 +306,7 @@ export class VotesService {
       return {
         ...vote,
         files: voteFiles,
-        newAttachedGroups,
+        attachedGroups: newAttachedGroups,
         // isAdmin,
         isVoted,
         usersVoted: users,
