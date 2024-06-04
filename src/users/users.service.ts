@@ -157,7 +157,7 @@ export class UsersService {
       
       for (let vote of user.assigned) {
         const isEnding = vote.endDate.getTime() - now.getTime() <= 1000 * 60 * 60 * 24;
-        const isVoted = Boolean(vote.usersVoted.find((x) => x == id));
+        const isVoted = Boolean(vote.usersVoted.find((x) => x === id));
         result.push({...vote, isEnding, isVoted})
       }
 

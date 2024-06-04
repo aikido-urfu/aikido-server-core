@@ -159,7 +159,6 @@ export class VotesService {
 
       return { votes: result };
     } catch (error) {
-      console.log(error);
       throw new ForbiddenException(error);
     }
   }
@@ -264,7 +263,7 @@ export class VotesService {
         });
       }
 
-      const isVoted = vote.usersVoted.includes(userId);
+      const isVoted = Boolean(vote.usersVoted.find((x) => x === userId));
       let newAttachedGroups = [];
 
       for (const group of vote.attachedGroups) {
@@ -275,7 +274,6 @@ export class VotesService {
         attachedGroup.users.forEach((groupUser) => {
           if (vote.respondents.find((respondent, index) => {
             const criterion = (respondent.id == groupUser.id);
-            console.log(criterion)
             if (criterion) vote.respondents.splice(index, 1);
             return criterion;
           })) {
@@ -313,7 +311,6 @@ export class VotesService {
         user: author,
       };
     } catch (error) {
-      console.log(error)
       throw new ForbiddenException(error);
     }
   }
@@ -461,11 +458,14 @@ export class VotesService {
         }
       }
 
+
       if (!Array.isArray(vote.usersVoted)) {
         vote.usersVoted = [];
       }
 
-      vote.usersVoted.push(userId);
+      if (!(vote.usersVoted.find((x) => x === userId))) {
+        vote.usersVoted.push(userId);
+      }
 
       this.repository.save(vote);
     } catch (error) {

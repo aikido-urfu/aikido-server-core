@@ -43,9 +43,10 @@ export class VotesController {
   // }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse(GetVote)
   findOne(@Param('id') id: string, @UserId() userId) {
-    return this.votesService.findOne(+id, userId);
+    return this.votesService.findOne(+id, +userId);
   }
 
   @Get(':id/messages')
@@ -73,7 +74,7 @@ export class VotesController {
     @UserId() userId,
     @Body() userAnswers: { kek: number[] },
   ) {
-    return this.votesService.voting(+id, userId, userAnswers);
+    return this.votesService.voting(+id, +userId, userAnswers);
   }
 
   @Delete(':id')
