@@ -9,6 +9,7 @@ import { UsersModule } from 'src/users/users.module';
 import { FilesModule } from 'src/files/files.module';
 import { TelegramModule } from 'src/telegram/telegram.module';
 import { MessagesModule } from 'src/messages/messages.module';
+import { GroupsModule } from '../groups/groups.module';
 
 @Module({
   controllers: [VotesController],
@@ -19,6 +20,7 @@ import { MessagesModule } from 'src/messages/messages.module';
     QuestionsModule,
     AnswersModule,
     FilesModule,
+    GroupsModule,
     MessagesModule,
     forwardRef(() => TelegramModule),
   ],

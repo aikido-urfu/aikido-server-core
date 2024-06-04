@@ -194,7 +194,7 @@ export class UsersService {
     }
   }
 
-  async changeGroup(userId: number, groupId: number) {
+  async changeGroupOne(userId: number, groupId: number) {
     try {
       const user = await this.repository.findOneBy({
         id: userId,

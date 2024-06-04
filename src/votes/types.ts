@@ -20,9 +20,6 @@ export const GetVote = {
           email: {
             type: 'string',
           },
-          password: {
-            type: 'string',
-          },
           fullName: {
             type: 'string',
           },
@@ -81,14 +78,71 @@ export const GetVote = {
       isAnonymous: {
         type: 'boolean',
       },
-      isHidenCounter: {
-        type: 'boolean',
-      },
       respondents: {
         type: 'array',
         items: {
-          type: 'number',
+          type: 'object',
+          properties: {
+            id: {
+              type: 'number',
+            },
+            email: {
+              type: 'string',
+            },
+            fullName: {
+              type: 'string',
+            },
+            role: {
+              type: 'string',
+            },
+            phone: {
+              type: 'string',
+            },
+            photo: {
+              type: 'string',
+            },
+            telegram: {
+              type: 'string',
+            },
+            telegramUserID: {
+              type: 'string',
+            },
+          },
         },
+      },
+      attachedGroups: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'number',
+            },
+            name: {
+              type: 'string',
+            },
+            users: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: {
+                    type: 'number',
+                  },
+                  fullName: {
+                    type: 'string',
+                  },
+                  role: {
+                    type: 'string',
+                  },
+                  photo: {
+                    type: 'string',
+                  },
+                }
+              }
+            }
+          }
+        }
       },
       files: {
         type: 'array',

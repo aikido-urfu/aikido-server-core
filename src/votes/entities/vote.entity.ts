@@ -40,6 +40,9 @@ export class Vote {
   @JoinTable()
   respondents?: User[];
 
+  @Column('integer', { array: true, nullable: true })
+  attachedGroups?: number[];
+
   @Column('text', { array: true, nullable: true })
   files?: number[];
 

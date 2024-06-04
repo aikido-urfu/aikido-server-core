@@ -29,6 +29,7 @@ import { MessagesService } from '../messages/messages.service';
 import { CreateMessageDto } from 'src/messages/dto/create-message.dto';
 import { Message } from '../messages/entities/message.entity';
 import { roles } from '../tools/roles';
+import { GroupsService } from '../groups/groups.service';
 
 @Injectable()
 export class VotesService {
@@ -42,6 +43,7 @@ export class VotesService {
     private answersService: AnswersService,
     private filesService: FilesService,
     private messagesService: MessagesService,
+    private groupsService: GroupsService,
   ) {}
 
   async create(createVoteDto: CreateVoteDto, userId: number) {
@@ -55,9 +57,12 @@ export class VotesService {
         startDate,
         endDate,
         respondents,
+        groups,
         files,
         photos,
       } = createVoteDto;
+
+      const activeUser = await this.usersService.findById(userId);
 
       if (!userId || !title || !questions || !questions.length) {
         throw new ForbiddenException('Отсутсвуют необходимые поля');
@@ -65,18 +70,27 @@ export class VotesService {
 
       let usersResp = [];
 
-      for (let id of respondents) {
-        let foundUser = await this.usersService.findById(id);
+      for (const id of respondents) {
+        const foundUser = await this.usersService.findById(id);
         // let foundUser = id as DeepPartial<User>;
-        if (
-          roles[(await this.usersService.findById(userId)).role] <
-          roles[foundUser.role]
-        ) {
+        if (roles[activeUser.role] < roles[foundUser.role]) {
           throw new ForbiddenException(
             `Недостаточно прав для добавлениия пользователя ${foundUser.fullName}`,
           );
         }
         usersResp.push(foundUser);
+      }
+
+      for (const groupId of groups) {
+        let newGroup = await this.groupsService.findOne(groupId);
+
+        for (const user of newGroup.users) {
+          if (!(usersResp.find((x) => x.id == user.id))) {
+            if (roles[activeUser.role] >= roles[user.role]) {
+              usersResp.push(user);
+            }
+          }
+        }
       }
 
       // console.log(userId as DeepPartial<User>);
@@ -92,10 +106,10 @@ export class VotesService {
         isAnonymous: isAnonymous ?? true,
         isHidenCount: isHidenCount ?? false,
         respondents: usersResp,
+        attachedGroups: groups,
         files,
         photos,
       };
-      console.log(voteData.creator);
 
       const startDateNew = voteData.startDate;
       const endDateNew = voteData.endDate;
@@ -236,7 +250,7 @@ export class VotesService {
 
       vote.questions = [...questions];
 
-      const isAdmin = userId === vote.creator.id ? 'admin' : 'user';
+      // const isAdmin = userId === vote.creator.id ? 'admin' : 'user';
 
       const users = [];
       for (const id of vote.usersVoted) {
@@ -251,16 +265,55 @@ export class VotesService {
       }
 
       const isVoted = vote.usersVoted.includes(userId);
+      let newAttachedGroups = [];
+
+      for (const group of vote.attachedGroups) {
+        const attachedGroup = await this.groupsService.findOne(group);
+        // newAttachedGroups.push(group)
+        let filteredUsers = [];
+
+        attachedGroup.users.forEach((groupUser) => {
+          if (vote.respondents.find((respondent, index) => {
+            const criterion = (respondent.id == groupUser.id);
+            console.log(criterion)
+            if (criterion) vote.respondents.splice(index, 1);
+            return criterion;
+          })) {
+            filteredUsers.push({
+              id: groupUser.id,
+              fullName: groupUser.fullName,
+              role: groupUser.role,
+              photo: groupUser.photo
+            });
+          }
+        });
+
+
+        newAttachedGroups.push({
+          id: attachedGroup.id,
+          name: attachedGroup.name,
+          users: filteredUsers
+        });
+      }
+
+      // userIdInGroups =  Array.from(new Set(userIdInGroups));
+      // vote.respondents.forEach((el, index) => {
+      //   if (userIdInGroups.find((x) => x == el.id)) {
+      //     vote.respondents.splice(index);
+      //   }
+      // })
 
       return {
         ...vote,
         files: voteFiles,
-        isAdmin,
+        attachedGroups: newAttachedGroups,
+        // isAdmin,
         isVoted,
         usersVoted: users,
         user: author,
       };
     } catch (error) {
+      console.log(error)
       throw new ForbiddenException(error);
     }
   }
