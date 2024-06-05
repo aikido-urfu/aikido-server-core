@@ -267,6 +267,8 @@ export class VotesService {
       const isVoted = Boolean(vote.usersVoted.find((x) => x === userId));
 
       let newAttachedGroups = [];
+      let resps = [];
+      
       if (vote.attachedGroups) {
         for (const group of vote.attachedGroups) {
           const attachedGroup = await this.groupsService.findOne(group);
@@ -277,7 +279,12 @@ export class VotesService {
             if (
               vote.respondents.find((respondent, index) => {
                 const criterion = respondent.id == groupUser.id;
-                if (criterion) vote.respondents.splice(index, 1);
+                if (!criterion) {
+                  vote.respondents.splice(index, 1);
+                }
+                else {
+                  respondent.password = null;
+                }
                 return criterion;
               })
             ) {
@@ -307,8 +314,19 @@ export class VotesService {
 
       return {
         ...vote,
+        creator: author,
         files: voteFiles,
         attachedGroups: newAttachedGroups,
+        respondents: vote.respondents.map((resp) => {
+          return {
+            id: resp.id,
+            email: resp.email,
+            fullName: resp.fullName,
+            role: resp.role,
+            phone: resp.phone,
+            photo: resp.photo,
+          }
+        }),
         // isAdmin,
         isVoted,
         usersVoted: users,

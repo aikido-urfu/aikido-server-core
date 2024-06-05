@@ -85,8 +85,11 @@ export class UsersService {
 
   async findById(id: number) {
     try {
-      const user = await this.repository.findOneBy({
-        id,
+      const user = await this.repository.findOne({
+        where: {
+          id
+        },
+        relations: ['group'],
       });
 
       const response = {
@@ -124,14 +127,14 @@ export class UsersService {
 
   async findAll() {
     try {
-      const users = await this.repository.find();
+      const users = await this.repository.find({relations: ['group'],});
       const response = [];
 
       for (const user of users) {
         await response.push({
           id: user.id,
           fullName: user.fullName,
-          group: user.group,
+          group: user.group.name,
           role: user.role,
           photo: user.photo,
           phone: user.phone,
