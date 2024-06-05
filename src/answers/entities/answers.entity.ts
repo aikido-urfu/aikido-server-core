@@ -16,7 +16,8 @@ export class Answers {
   users?: number[];
 
   @ManyToOne(() => Questions, (questions) => questions.answers, {
-    cascade: true, onDelete: 'CASCADE'
+    cascade: true,
+    onDelete: 'CASCADE',
   })
   questions: Questions;
 }

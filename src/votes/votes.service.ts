@@ -85,7 +85,7 @@ export class VotesService {
         let newGroup = await this.groupsService.findOne(groupId);
 
         for (const user of newGroup.users) {
-          if (!(usersResp.find((x) => x.id == user.id))) {
+          if (!usersResp.find((x) => x.id == user.id)) {
             if (roles[activeUser.role] >= roles[user.role]) {
               usersResp.push(user);
             }
@@ -237,6 +237,7 @@ export class VotesService {
               photo: user.photo,
             });
           }
+
           // @ts-ignore
           question.answers.push({
             id: answer.id,
@@ -264,34 +265,37 @@ export class VotesService {
       }
 
       const isVoted = Boolean(vote.usersVoted.find((x) => x === userId));
+
       let newAttachedGroups = [];
+      if (vote.attachedGroups) {
+        for (const group of vote.attachedGroups) {
+          const attachedGroup = await this.groupsService.findOne(group);
+          // newAttachedGroups.push(group)
+          let filteredUsers = [];
 
-      for (const group of vote.attachedGroups) {
-        const attachedGroup = await this.groupsService.findOne(group);
-        // newAttachedGroups.push(group)
-        let filteredUsers = [];
+          attachedGroup.users.forEach((groupUser) => {
+            if (
+              vote.respondents.find((respondent, index) => {
+                const criterion = respondent.id == groupUser.id;
+                if (criterion) vote.respondents.splice(index, 1);
+                return criterion;
+              })
+            ) {
+              filteredUsers.push({
+                id: groupUser.id,
+                fullName: groupUser.fullName,
+                role: groupUser.role,
+                photo: groupUser.photo,
+              });
+            }
+          });
 
-        attachedGroup.users.forEach((groupUser) => {
-          if (vote.respondents.find((respondent, index) => {
-            const criterion = (respondent.id == groupUser.id);
-            if (criterion) vote.respondents.splice(index, 1);
-            return criterion;
-          })) {
-            filteredUsers.push({
-              id: groupUser.id,
-              fullName: groupUser.fullName,
-              role: groupUser.role,
-              photo: groupUser.photo
-            });
-          }
-        });
-
-
-        newAttachedGroups.push({
-          id: attachedGroup.id,
-          name: attachedGroup.name,
-          users: filteredUsers
-        });
+          newAttachedGroups.push({
+            id: attachedGroup.id,
+            name: attachedGroup.name,
+            users: filteredUsers,
+          });
+        }
       }
 
       // userIdInGroups =  Array.from(new Set(userIdInGroups));
@@ -458,12 +462,11 @@ export class VotesService {
         }
       }
 
-
       if (!Array.isArray(vote.usersVoted)) {
         vote.usersVoted = [];
       }
 
-      if (!(vote.usersVoted.find((x) => x === userId))) {
+      if (!vote.usersVoted.find((x) => x === userId)) {
         vote.usersVoted.push(userId);
       }
 
