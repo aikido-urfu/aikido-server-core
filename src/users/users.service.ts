@@ -134,7 +134,7 @@ export class UsersService {
         await response.push({
           id: user.id,
           fullName: user.fullName,
-          group: user.group.name,
+          group: user.group?.name,
           role: user.role,
           photo: user.photo,
           phone: user.phone,
