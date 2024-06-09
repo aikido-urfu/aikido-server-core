@@ -267,17 +267,6 @@ export class VotesService {
       const isVoted = Boolean(vote.usersVoted.find((x) => x === userId));
 
       let newAttachedGroups = [];
-      let resps = [];
-
-      function test1(respondent: any, index: number, groupUser: any) {
-        const criterion = respondent.id == groupUser.id;
-        if (!criterion) {
-          vote.respondents.splice(index, 1);
-        } else {
-          respondent.password = null;
-        }
-        return criterion;
-      }
 
       if (vote.attachedGroups) {
         for (const group of vote.attachedGroups) {
@@ -288,7 +277,10 @@ export class VotesService {
           attachedGroup.users.forEach((groupUser) => {
             if (
               vote.respondents.find((respondent, index) => {
-                test1(respondent, index, groupUser);
+                const criterion = respondent.id == groupUser.id;
+                if (criterion) vote.respondents.splice(index, 1);
+
+                return criterion;
               })
             ) {
               filteredUsers.push({
@@ -328,7 +320,7 @@ export class VotesService {
             role: resp.role,
             phone: resp.phone,
             photo: resp.photo,
-          };
+          }
         }),
         // isAdmin,
         isVoted,
