@@ -274,6 +274,10 @@ export class VotesService {
           // newAttachedGroups.push(group)
           let filteredUsers = [];
 
+          if (attachedGroup.users.length < 1) {
+            throw new ForbiddenException("Вы пытаетесь прикрепить пустую группу.");
+          }
+
           attachedGroup.users.forEach((groupUser) => {
             if (
               vote.respondents.find((respondent, index) => {
