@@ -84,6 +84,10 @@ export class VotesService {
       for (const groupId of groups) {
         let newGroup = await this.groupsService.findOne(groupId);
 
+        if (newGroup.users.length < 1) {
+          throw new ForbiddenException("Вы пытаетесь прикрепить пустую группу.");
+        }
+
         for (const user of newGroup.users) {
           if (!usersResp.find((x) => x.id == user.id)) {
             if (roles[activeUser.role] >= roles[user.role]) {
@@ -273,10 +277,6 @@ export class VotesService {
           const attachedGroup = await this.groupsService.findOne(group);
           // newAttachedGroups.push(group)
           let filteredUsers = [];
-
-          if (attachedGroup.users.length < 1) {
-            throw new ForbiddenException("Вы пытаетесь прикрепить пустую группу.");
-          }
 
           attachedGroup.users.forEach((groupUser) => {
             if (
