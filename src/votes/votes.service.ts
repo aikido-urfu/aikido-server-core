@@ -453,7 +453,7 @@ export class VotesService {
       isAnonymous: isAnonymous ?? true,
       isHidenCount: isHidenCount ?? false,
       respondents: usersResp,
-      groups,
+      attachedGroups: groups,
       files,
       photos,
     };
