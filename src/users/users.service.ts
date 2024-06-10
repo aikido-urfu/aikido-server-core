@@ -139,6 +139,7 @@ export class UsersService {
           photo: user.photo,
           phone: user.phone,
           email: user.email,
+          telegramUserID: user.telegramUserID
         });
       }
 
