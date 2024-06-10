@@ -27,7 +27,7 @@ export class VotesController {
   @UseGuards(JwtAuthGuard)
   @ApiBody(PostVote)
   create(@Body() createVoteDto: CreateVoteDto, @UserId() userId) {
-    return this.votesService.create(createVoteDto, userId);
+    return this.votesService.create(createVoteDto, +userId);
   }
 
   @Get()
@@ -63,7 +63,7 @@ export class VotesController {
     @UserId() userId,
     @Body() updateVoteDto: UpdateVoteDto,
   ) {
-    return this.votesService.update(+id, userId, updateVoteDto);
+    return this.votesService.update(+id, +userId, updateVoteDto);
   }
 
   @Put(':id')
@@ -80,6 +80,6 @@ export class VotesController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string, @UserId() userId: number) {
-    return this.votesService.remove(+id, userId);
+    return this.votesService.remove(+id, +userId);
   }
 }

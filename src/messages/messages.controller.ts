@@ -17,7 +17,7 @@ export class MessagesController {
   @UseGuards(JwtAuthGuard)
   @ApiBody(PostMessage)
   create(@Body() createMessageDto: CreateMessageDto, @UserId() userId) {
-    return this.messagesService.create(createMessageDto, userId);
+    return this.messagesService.create(createMessageDto, +userId);
   }
 
   // @Get()
