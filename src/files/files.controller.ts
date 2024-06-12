@@ -9,11 +9,12 @@ import {
   Res,
   StreamableFile,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { UserId } from 'src/decorators/user-id.decorator';
 import Multer from 'multer';
 import { fileStorage } from 'src/tools/storage';
@@ -21,11 +22,14 @@ import { Files_URL, Server_URL } from 'API_URL';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Response } from 'express';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('files')
+@ApiBearerAuth()
 export class FilesController {
   constructor(private readonly fileService: FilesService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('/file')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -65,6 +69,7 @@ export class FilesController {
   }
 
   @Post('photo')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileInterceptor('photo', {
       storage: fileStorage,

@@ -81,6 +81,8 @@ export class VotesService {
         usersResp.push(foundUser);
       }
 
+      usersResp.push(activeUser);
+
       for (const groupId of groups) {
         let newGroup = await this.groupsService.findOne(groupId);
 

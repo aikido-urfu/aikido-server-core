@@ -31,6 +31,7 @@ export class VotesController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   @ApiResponse(GetVotes)
   findAll() {
     return this.votesService.findAll();
@@ -50,6 +51,7 @@ export class VotesController {
   }
 
   @Get(':id/messages')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse(GetVote)
   findMessages(@Param('id') id: string) {
     return this.votesService.getMessages(+id);

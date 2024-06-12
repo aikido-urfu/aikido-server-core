@@ -13,12 +13,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   @ApiResponse(GetUsers)
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get('/publicKey')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse(GetKey)
   getKey() {
     return { key: process.env.RSA_PUBLIC_KEY };
@@ -32,6 +34,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiResponse(GetUser)
   findOne(@Param('id') id: string) {
     return this.usersService.findById(+id);

@@ -2,7 +2,7 @@ export const UpdateUser = {
   schema: {
     type: 'object',
     properties: {
-      login: {
+      fullName: {
         type: 'string',
       },
       password: {
@@ -14,7 +14,7 @@ export const UpdateUser = {
       phone: {
         type: 'string',
       },
-      telegram: {
+      telegramUserID: {
         type: 'string',
       },
       photo: {

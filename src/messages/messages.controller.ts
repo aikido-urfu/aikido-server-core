@@ -26,6 +26,7 @@ export class MessagesController {
   // }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
     return this.messagesService.findOne(+id);
   }
@@ -35,8 +36,8 @@ export class MessagesController {
   //   return this.messagesService.update(+id, updateMessageDto);
   // }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@UserId() userId, @Param('id') id: string) {
     return this.messagesService.remove(+id, +userId);
   }
