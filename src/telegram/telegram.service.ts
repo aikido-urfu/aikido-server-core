@@ -287,20 +287,23 @@ export class TelegramService {
   }
 
   async findAll(tgid: string) {
-    // try {
-    //   const userId = await this.usersService.findByTgid(tgid);
-    //   const votes = await this.votesService.findCreatedByMe(userId);
-    //   const response = [];
-    //   for (const vote of votes) {
-    //     response.push({
-    //       text: vote.description,
-    //       url: Frontend_URL + 'vote/' + vote.id,
-    //     });
-    //   }
-    //   return response;
-    // } catch (error) {
-    //   throw new ForbiddenException(error);
-    // }
+    try {
+      const userId = await this.usersService.findByTgid(tgid);
+      const votes = await this.voteService.findCreatedByMe(userId);
+
+      const response = votes.map((vote) => {
+        return {
+          id: vote.id,
+          title: vote.title,
+          startDate: vote.startDate.toISOString(),
+          endDate: vote.endDate.toISOString(),
+        };
+      });
+
+      return response;
+    } catch (error) {
+      throw new ForbiddenException(error);
+    }
   }
 
   findOne(id: number) {
