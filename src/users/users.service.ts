@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -115,9 +116,18 @@ export class UsersService {
         telegramUserID,
       });
 
+      if (!user) {
+        throw new ConflictException('No such user');
+      }
+
       return user.id;
     } catch (error) {
-      throw new ForbiddenException(error);
+      if (error instanceof ConflictException) {
+        throw error;
+      } else {
+        console.log(error);
+        throw new InternalServerErrorException(error);
+      }
     }
   }
 

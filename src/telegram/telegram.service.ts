@@ -307,9 +307,9 @@ export class TelegramService {
 
       return { votes: response };
     } catch (error) {
-      if (error instanceof BadRequestException) {
+      if (error instanceof BadRequestException || error instanceof ConflictException) {
         throw error;
-      }
+      } else {
       console.log(error);
       throw new InternalServerErrorException(error);
     }
@@ -333,8 +333,8 @@ export class TelegramService {
 
       return `Telegram unlinked for ${userId} user id`;
     } catch (error) {
-      if (error instanceof ForbiddenException) {
-        throw new ConflictException('No such user');
+      if (error instanceof ConflictException) {
+        throw error;
       } else {
         console.log(error);
         throw new InternalServerErrorException(error);
