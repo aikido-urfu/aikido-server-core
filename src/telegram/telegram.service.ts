@@ -307,11 +307,15 @@ export class TelegramService {
 
       return { votes: response };
     } catch (error) {
-      if (error instanceof BadRequestException || error instanceof ConflictException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
         throw error;
       } else {
-      console.log(error);
-      throw new InternalServerErrorException(error);
+        console.log(error);
+        throw new InternalServerErrorException(error);
+      }
     }
   }
 
