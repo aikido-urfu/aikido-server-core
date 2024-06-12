@@ -87,7 +87,7 @@ export class UsersService {
     try {
       const user = await this.repository.findOne({
         where: {
-          id
+          id,
         },
         relations: ['group'],
       });
@@ -127,7 +127,7 @@ export class UsersService {
 
   async findAll() {
     try {
-      const users = await this.repository.find({relations: ['group'],});
+      const users = await this.repository.find({ relations: ['group'] });
       const response = [];
 
       for (const user of users) {
@@ -139,7 +139,7 @@ export class UsersService {
           photo: user.photo,
           phone: user.phone,
           email: user.email,
-          telegramUserID: user.telegramUserID
+          telegramUserID: user.telegramUserID,
         });
       }
 
@@ -158,11 +158,12 @@ export class UsersService {
 
       const result = [];
       const now = new Date();
-      
+
       for (let vote of user.assigned) {
-        const isEnding = vote.endDate.getTime() - now.getTime() <= 1000 * 60 * 60 * 24;
+        const isEnding =
+          vote.endDate.getTime() - now.getTime() <= 1000 * 60 * 60 * 24;
         const isVoted = Boolean(vote.usersVoted.find((x) => x === id));
-        result.push({...vote, isEnding, isVoted})
+        result.push({ ...vote, isEnding, isVoted });
       }
 
       return { votes: result.reverse() };

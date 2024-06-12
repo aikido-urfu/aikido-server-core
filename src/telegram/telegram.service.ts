@@ -289,20 +289,23 @@ export class TelegramService {
   async findAll(tgid: string) {
     try {
       const userId = await this.usersService.findByTgid(tgid);
-      const votes = await this.voteService.findCreatedByMe(userId);
+      const res = await this.usersService.findMyVotes(userId);
 
-      const response = votes.map((vote) => {
+      const response = res.votes.map((vote) => {
         return {
           id: vote.id,
           title: vote.title,
           startDate: vote.startDate.toISOString(),
           endDate: vote.endDate.toISOString(),
+          isVoted: vote.isVoted,
+          isExpired: new Date().getTime() - vote.endDate.getTime() > 0,
         };
       });
 
-      return response;
+      return { votes: response };
     } catch (error) {
-      throw new ForbiddenException(error);
+      console.log(error);
+      throw new InternalServerErrorException(error);
     }
   }
 
