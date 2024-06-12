@@ -87,7 +87,9 @@ export class VotesService {
         let newGroup = await this.groupsService.findOne(groupId);
 
         if (newGroup.users.length < 1) {
-          throw new ForbiddenException("Вы пытаетесь прикрепить пустую группу.");
+          throw new ForbiddenException(
+            'Вы пытаетесь прикрепить пустую группу.',
+          );
         }
 
         for (const user of newGroup.users) {
@@ -326,7 +328,7 @@ export class VotesService {
             role: resp.role,
             phone: resp.phone,
             photo: resp.photo,
-          }
+          };
         }),
         // isAdmin,
         isVoted,
@@ -416,7 +418,9 @@ export class VotesService {
     });
 
     if (oldVote.creator.id !== userId) {
-      throw new ForbiddenException('Only creator can modify vote');
+      throw new ForbiddenException(
+        'Только создатель может редактировать голосование',
+      );
     }
 
     if (!startDate || !endDate || startDate >= endDate) {
@@ -435,7 +439,7 @@ export class VotesService {
       let newGroup = await this.groupsService.findOne(groupId);
 
       if (newGroup.users.length < 1) {
-        throw new ForbiddenException("Вы пытаетесь прикрепить пустую группу.");
+        throw new ForbiddenException('Вы пытаетесь прикрепить пустую группу.');
       }
 
       for (const user of newGroup.users) {
@@ -458,6 +462,7 @@ export class VotesService {
       attachedGroups: groups,
       files,
       photos,
+      usersVoted: [],
     };
 
     try {
