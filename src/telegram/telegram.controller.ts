@@ -51,8 +51,8 @@ export class TelegramController {
   @Get('/votes')
   @ApiBody(TelegramId)
   @ApiResponse(Votes)
-  findAll(@Body() body: { tgid: string }) {
-    return this.telegramService.findAll(body.tgid);
+  findAll(@Body() body: { telegramUserID: string }) {
+    return this.telegramService.findAll(body.telegramUserID);
   }
 
   // https://stackoverflow.com/a/73821533

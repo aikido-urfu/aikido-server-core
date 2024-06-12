@@ -288,6 +288,9 @@ export class TelegramService {
 
   async findAll(tgid: string) {
     try {
+      if (!tgid) {
+        throw new BadRequestException();
+      }
       const userId = await this.usersService.findByTgid(tgid);
       const res = await this.usersService.findMyVotes(userId);
 
@@ -304,6 +307,9 @@ export class TelegramService {
 
       return { votes: response };
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       console.log(error);
       throw new InternalServerErrorException(error);
     }
